@@ -7,9 +7,7 @@ Quaternion q;
 VectorFloat gravity;
 float ypr[3];
 
-
 void mpu_initialisation() {
-
 
   Wire.begin();
   TWBR = 24;
@@ -38,11 +36,9 @@ void mpu_get_values() {
 
     mpu.getFIFOBytes(fifoBuffer, packetSize);
 
-
     mpu.resetFIFO();
 
     fifoCount -= packetSize;
-
 
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
@@ -50,7 +46,5 @@ void mpu_get_values() {
     roll_angle = ypr[2] * 180 / PI;
 
   }
-
-
 }
 
