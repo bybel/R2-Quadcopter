@@ -8,8 +8,8 @@
 #define RX_PIN_YAW 11
 
 ////////MOTEURS////////
-#define MOTOR_PIN_RIGHT 5
-#define MOTOR_PIN_LEFT 6
+#define MOTOR_PIN_RIGHT 11
+#define MOTOR_PIN_LEFT 10
 
 
 ////////////////////////////////Valeurs a avoir///////////////////////////////////////

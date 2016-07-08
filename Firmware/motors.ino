@@ -4,6 +4,7 @@ Servo motor_left;
 void motors_initialisation(){
   motor_right.attach(MOTOR_PIN_RIGHT);
   motor_left.attach(MOTOR_PIN_LEFT);
+  delay(5000);
   motor_right.writeMicroseconds(MOTOR_ZERO_LEVEL);
   motor_left.writeMicroseconds(MOTOR_ZERO_LEVEL);
 }

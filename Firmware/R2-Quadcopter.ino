@@ -30,11 +30,11 @@ void setup(){
 void loop(){
   mpu_get_values();
   control_update();
-  Serial.print(mR);
-  Serial.print("  _  ");
-  Serial.print(mL);
-  Serial.print("  _  ");
-  Serial.println(roll_angle);
+//  Serial.print(mR);
+//  Serial.print(", ");
+//  Serial.print(mL);
+//  Serial.print(", ");
+//  Serial.println(roll_angle);
 
 }
 

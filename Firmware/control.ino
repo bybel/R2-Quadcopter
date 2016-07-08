@@ -7,8 +7,7 @@ void control_update(){
 
   mR = throttle + pid_roll_out;
   mL = throttle - pid_roll_out;
-
-  motors_update(mR, mL);
+  motors_update(mR, mL); 
 }
 
 

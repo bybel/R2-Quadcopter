@@ -7,7 +7,9 @@ Quaternion q;
 VectorFloat gravity;
 float ypr[3];
 
+
 void mpu_initialisation() {
+
 
   Wire.begin();
   TWBR = 24;
@@ -16,9 +18,9 @@ void mpu_initialisation() {
   mpu.setXAccelOffset(-1343);
   mpu.setYAccelOffset(-1155);
   mpu.setZAccelOffset(1033);
-  mpu.setXGyroOffset(19);
-  mpu.setYGyroOffset(-27);
-  mpu.setZGyroOffset(16);
+  mpu.setXGyroOffset(65);
+  mpu.setYGyroOffset(-10);
+  mpu.setZGyroOffset(25);
   mpu.setDMPEnabled(true);
   packetSize = mpu.dmpGetFIFOPacketSize();
 }
@@ -36,15 +38,19 @@ void mpu_get_values() {
 
     mpu.getFIFOBytes(fifoBuffer, packetSize);
 
+
     mpu.resetFIFO();
 
     fifoCount -= packetSize;
 
+
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-    roll_angle = ypr[2] * 180 / PI;
+    roll_angle = ypr[1] * 180 / PI;
 
   }
+
+
 }
 
