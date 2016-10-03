@@ -3,9 +3,7 @@
 #include <PID_v1.h>
 #include <Servo.h> 
 #include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
+#include "MPU6050_6Axis_MotionApps20.h"
 
 
 // PID variables
@@ -32,12 +30,11 @@ void setup(){
 void loop(){
   mpu_get_values();
   control_update();
-  //print_values();
-  Serial.print(mR);
-  Serial.print(", ");
-  Serial.print(mL);
-  Serial.print(", ");
-  Serial.println(roll_angle);
+//  Serial.print(mR);
+//  Serial.print(", ");
+//  Serial.print(mL);
+//  Serial.print(", ");
+//  Serial.println(roll_angle);
 
 }
 
