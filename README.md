@@ -4,4 +4,4 @@
 
 #Description
 
-The R<sup>2</sup>Quad is an Arduino Uno-Based radio controlled quadcopter flight controller.
+The R<sup>2</sup>Quad is an ARM Cortex M0+ Processor-Based radio controlled quadcopter flight controller.
