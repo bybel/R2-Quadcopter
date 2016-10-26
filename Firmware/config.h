@@ -2,14 +2,16 @@
 
 ////////RX///////
 #define RX_PINS_OFFSET 2
-#define RX_PIN_ROLL 8
-#define RX_PIN_PITCH 9
-#define RX_PIN_THROTTLE 10
-#define RX_PIN_YAW 11
+#define RX_PIN_ROLL A0
+#define RX_PIN_PITCH A1
+#define RX_PIN_THROTTLE A2
+#define RX_PIN_YAW A3
 
 ////////MOTEURS////////
 #define MOTOR_PIN_RIGHT 6
 #define MOTOR_PIN_LEFT 5
+#define MOTOR_PIN_FRONT 9
+#define MOTOR_PIN_BACK 10
 
 
 ////////////////////////////////Valeurs a avoir///////////////////////////////////////
@@ -44,6 +46,16 @@
 #define ROLL_RMAX  THROTTLE_RMAX
 #define ROLL_WMIN  -30
 #define ROLL_WMAX  30
+
+#define PITCH_RMIN  THROTTLE_RMIN
+#define PITCH_RMAX  THROTTLE_RMAX
+#define PITCH_WMIN  -30
+#define PITCH_WMAX  30
+
+#define YAW_RMIN  THROTTLE_RMIN
+#define YAW_RMAX  THROTTLE_RMAX
+#define YAW_WMIN  -30
+#define YAW_WMAX  30
 
 
 /////////////plus de rapidite////////////
