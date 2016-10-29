@@ -7,13 +7,10 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-
-
 Servo motor_right;
 Servo motor_left;
 Servo motor_front;
 Servo motor_back;
-
 
 // PID variables
 double pid_roll_in,   pid_roll_out,   pid_roll_setpoint = 0;
@@ -23,25 +20,26 @@ double pid_yaw_in,    pid_yaw_out,    pid_yaw_setpoint = 0;
 // MOTORS
 int mR, mL, mF, mB;
 
-//rx
+//RX
 int throttle = THROTTLE_RMIN;
 volatile int input[4];
 
 unsigned long timer[4];
 byte last_channel[4];
 
-
+//IMU variables
 float roll_angle;
 float pitch_angle;
 float yaw_angle;
 
 Adafruit_BNO055 bno = Adafruit_BNO055();
 
-PID roll_controller(&pid_roll_in, &pid_roll_out, &pid_roll_setpoint, 5.0, 1.0, 1.0, REVERSE);
+//Init PID
+PID roll_controller(&pid_roll_in, &pid_roll_out, &pid_roll_setpoint, ROLL_PID_KP, ROLL_PID_KI, ROLL_PID_KD, REVERSE);
 PID pitch_controller(&pid_pitch_in, &pid_pitch_out, &pid_pitch_setpoint, 5.0, 1.0, 1.0, REVERSE);
 PID yaw_controller(&pid_yaw_in, &pid_yaw_out, &pid_yaw_setpoint, 5.0, 1.0, 1.0, REVERSE);
 
-
+//Init IMU
 void bno_initialisation() {
   bno.begin();
   bno.setExtCrystalUse(true);
@@ -131,15 +129,16 @@ void print_that_bitch() {
 
 void rx_read()
 {
-//  input[0] = pulseIn(A0, HIGH);//
-//  input[1] = pulseIn(A1, HIGH);//THIS is now interrupts for ARM
-//  input[2] = pulseIn(A2, HIGH);//
-//  input[3] = pulseIn(A3, HIGH);//
+  //TODO: Try with interrupts
+  input[0] = pulseIn(A0, HIGH);
+  input[1] = pulseIn(A1, HIGH);
+  input[2] = pulseIn(A2, HIGH);
+  input[3] = pulseIn(A3, HIGH);
 
 }
 
 void print_rx_values() {
-  Serial.print(input[0]);//Ici on print les valeurs en microsecondes
+  Serial.print(input[0]);//Print values in millis
   Serial.print(" - ");
   Serial.print(input[1]);
   Serial.print(" - ");
@@ -193,7 +192,7 @@ void loop() {
   motor_left.writeMicroseconds(mL - 100);
   motor_front.writeMicroseconds(mF - 100);
   motor_back.writeMicroseconds(mB - 100);
-  print_pitch_and_roll();
+  //print_pitch_and_roll();
 
 }
 
