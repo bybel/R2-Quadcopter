@@ -7,14 +7,14 @@
 #define RX_PIN_THROTTLE A2
 #define RX_PIN_YAW A3
 
-////////MOTEURS////////
+////////Motors////////
 #define MOTOR_PIN_RIGHT 6
 #define MOTOR_PIN_LEFT 5
 #define MOTOR_PIN_FRONT 9
 #define MOTOR_PIN_BACK 10
 
 
-////////////////////////////////Valeurs a avoir///////////////////////////////////////
+////////////////////////////////Define constants///////////////////////////////////////
 
 /////////////PID////////////////
 #define ROLL_PID_KP  0.250
@@ -58,16 +58,10 @@
 #define YAW_WMAX  30
 
 
-/////////////plus de rapidite////////////
+/////////////Motor level vars////////////
 #define MOTOR_ZERO_LEVEL  1000
 #define MOTOR_ARM_START  1500
 #define MOTOR_MAX_LEVEL  2000
-
-
-///mpu
-#define ADDR_SLAVE_I2C 2
-#define PACKET_SIZE 12
-
 
 
 
