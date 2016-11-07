@@ -192,7 +192,7 @@ void loop() {
   motor_left.writeMicroseconds(mL - 100);
   motor_front.writeMicroseconds(mF - 100);
   motor_back.writeMicroseconds(mB - 100);
-  //print_pitch_and_roll();
+  print_pitch_and_roll();
 
 }
 
