@@ -24,7 +24,7 @@
 #define ROLL_PID_MAX  200.0
 
 #define PITCH_PID_KP  0.250
-#define PITCH_PID_KI  0.950               ////toutes les Kx a verifier et tester
+#define PITCH_PID_KI  0.950
 #define PITCH_PID_KD  0.011
 #define PITCH_PID_MIN  -200.0
 #define PITCH_PID_MAX  200.0
@@ -36,17 +36,6 @@
 #define YAW_PID_MAX  100.0
 
 
-#define ROLL_WMIN  -30////////// ici on laisse une
-#define ROLL_WMAX  30////////// erreur max de 30 deg
-
-#define PITCH_WMIN  -30////////// ici on laisse une
-#define PITCH_WMAX  30////////// erreur max de 30 deg
-
-#define YAW_WMIN  -30////////// ici on laisse une
-#define YAW_WMAX  30////////// erreur max de 30 deg
-
-
-
 ////////RX Config///////////////////
 #define THROTTLE_RMIN  1000
 #define THROTTLE_SAFE_SHUTOFF 1120
@@ -55,18 +44,25 @@
 
 #define ROLL_RMIN  THROTTLE_RMIN
 #define ROLL_RMAX  THROTTLE_RMAX
-
+#define ROLL_WMIN  -30
+#define ROLL_WMAX  30
 
 #define PITCH_RMIN  THROTTLE_RMIN
 #define PITCH_RMAX  THROTTLE_RMAX
-
+#define PITCH_WMIN  -30
+#define PITCH_WMAX  30
 
 #define YAW_RMIN  THROTTLE_RMIN
 #define YAW_RMAX  THROTTLE_RMAX
-
+#define YAW_WMIN  -30
+#define YAW_WMAX  30
 
 
 /////////////Motor level vars////////////
 #define MOTOR_ZERO_LEVEL  1000
-#define MOTOR_ARM_START  1100
+#define MOTOR_ARM_START  1500
 #define MOTOR_MAX_LEVEL  2000
+
+
+
+
