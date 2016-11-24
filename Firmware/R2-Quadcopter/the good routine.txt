@@ -1,6 +1,8 @@
 First time routine:
 1. Calculate Max and Min for each stick.
-
+.
+.
+.
 
 Quadcopter routine:
 1. Check that all sticks are at the bottom.
