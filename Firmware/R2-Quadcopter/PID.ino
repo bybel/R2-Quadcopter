@@ -1,9 +1,9 @@
 //fonction qui calcule l'output du controlleur
 void pid_compute(){
   //executer le pid et en tirer le resultat
-  pid_roll_out = ROLL_PID_KP*roll_error + ROLL_PID_KI*Integral_roll_error + ROLL_PID_KD*Derivative_roll_error;
-  pid_pitch_out = PITCH_PID_KP*pitch_error + PITCH_PID_KI*Integral_pitch_error + PITCH_PID_KD*Derivative_pitch_error;
-  pid_yaw_out = YAW_PID_KP*yaw_error + YAW_PID_KI*Integral_yaw_error + YAW_PID_KD*Derivative_yaw_error;
+  pid_roll_out = ROLL_PID_KP*roll_error + ROLL_PID_KI*Integral_roll_error*dt + ROLL_PID_KD*Derivative_roll_error/dt;
+  pid_pitch_out = PITCH_PID_KP*pitch_error + PITCH_PID_KI*Integral_pitch_error*dt + PITCH_PID_KD*Derivative_pitch_error/dt;
+  pid_yaw_out = YAW_PID_KP*yaw_error + YAW_PID_KI*Integral_yaw_error*dt + YAW_PID_KD*Derivative_yaw_error/dt;
 
   if(pid_roll_out > ROLL_WMAX) pid_roll_out = ROLL_WMAX;
   if(pid_pitch_out > PITCH_WMAX) pid_pitch_out = PITCH_WMAX;
@@ -16,33 +16,50 @@ void pid_compute(){
   pid_calculate_Int_and_Der();
 
   //passer de la mesure anterieure a la nouvelle
-  last_roll_error = roll_error;
-  last_pitch_error = pitch_error;
-  last_yaw_error = yaw_error;
+
 }
 
 //calculer les termes der et int pour l'intervalle delta-temps
 void pid_calculate_Int_and_Der(){
-  if(delta_temps >= sampletime){ //Si le temps de mesure atteint sampletime
-    Integral_roll_error += roll_error;//pour nous delta_temps est dt
-    Integral_pitch_error += pitch_error;//ce qui permet d'integrer
-    Integral_yaw_error += yaw_error;//pour chacun des axes
+  //la partie integrale
+  Integral_roll_error += (last_roll_error + roll_error);
+  Integral_pitch_error += (last_pitch_error + pitch_error); //commutativite de l'addition
+  Integral_yaw_error += (last_yaw_error + yaw_error);
 
-    if(Integral_roll_error > ROLL_WMAX) Integral_roll_error = ROLL_WMAX; //ne pas laisser l'ouput
-    else if(Integral_roll_error < ROLL_WMIN) Integral_roll_error = ROLL_WMIN; //depasser l'output max
+  if(Integral_roll_error > ROLL_WMAX) Integral_roll_error = ROLL_WMAX; //ne pas laisser l'ouput
+  else if(Integral_roll_error < ROLL_WMIN) Integral_roll_error = ROLL_WMIN; //depasser l'output max
 
-    if(Integral_pitch_error > PITCH_WMAX) Integral_pitch_error = PITCH_WMAX;
-    else if(Integral_pitch_error < PITCH_WMIN) Integral_pitch_error = PITCH_WMIN;
+  if(Integral_pitch_error > PITCH_WMAX) Integral_pitch_error = PITCH_WMAX;
+  else if(Integral_pitch_error < PITCH_WMIN) Integral_pitch_error = PITCH_WMIN;
 
-    if(Integral_yaw_error > YAW_WMAX) Integral_yaw_error = YAW_WMAX;
-    else if(Integral_yaw_error < YAW_WMIN) Integral_yaw_error = YAW_WMIN;
-    //Ici nous avons borné le terme integral pour qu'il n'exagere pas
+  if(Integral_yaw_error > YAW_WMAX) Integral_yaw_error = YAW_WMAX;
+  else if(Integral_yaw_error < YAW_WMIN) Integral_yaw_error = YAW_WMIN;
+  //Ici nous avons borné le terme integral pour qu'il n'exagere pas
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Derivative_roll_error = (roll_error - last_roll_error);//le delta-temps est inclus dans le debut du loop
-    Derivative_pitch_error = (pitch_error - last_pitch_error);
-    Derivative_yaw_error = (yaw_error - last_yaw_error);
-  }
+  //la partie derivee
+  Derivative_roll_error = (roll_error - last_roll_error);
+  Derivative_pitch_error = (pitch_error - last_pitch_error);
+  Derivative_yaw_error = (yaw_error - last_yaw_error);
+
+  if(Derivative_roll_error > ROLL_WMAX) Derivative_roll_error = ROLL_WMAX; //ne pas laisser l'ouput
+  else if(Derivative_roll_error < ROLL_WMIN) Derivative_roll_error = ROLL_WMIN; //depasser l'output max
+
+  if(Derivative_pitch_error > PITCH_WMAX) Derivative_pitch_error = PITCH_WMAX;
+  else if(Derivative_pitch_error < PITCH_WMIN) Derivative_pitch_error = PITCH_WMIN;
+
+  if(Derivative_yaw_error > YAW_WMAX) Derivative_yaw_error = YAW_WMAX;
+  else if(Derivative_yaw_error < YAW_WMIN) Derivative_yaw_error = YAW_WMIN;
+  //Ici nous avons borné le terme Derivative pour qu'il n'exagere pas
+
+  delay(dt);
+  //Ici on laisse passer le temps dt pour obtenir la prochaine mesure
+
+  last_roll_error = roll_error;
+  last_pitch_error = pitch_error;
+  last_yaw_error = yaw_error;
+  //Ici on shift les mesures pour les prochaines
 }
 
 //fonction qui actualise les erreurs
