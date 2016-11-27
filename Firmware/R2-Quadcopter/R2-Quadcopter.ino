@@ -14,10 +14,7 @@ Servo motor_front;
 Servo motor_back;
 
 // PID variables
-int sampletime = 100;//notre dt est de 100 millisecondes
-int temps_mesure = millis();
-int dernier_temps_mesure = millis() - sampletime;
-int delta_temps = temps_mesure - dernier_temps_mesure;//temps devient "dt" et donc sampletime
+int dt = 3;//notre dt est de 100 millisecondes
 double pid_roll_in,   pid_roll_out,   pid_roll_setpoint, roll_error, Integral_roll_error, Derivative_roll_error, last_roll_error = 0;
 double pid_pitch_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error = 0;
 double pid_yaw_in,    pid_yaw_out,    pid_yaw_setpoint, yaw_error, Integral_yaw_error, Derivative_yaw_error, last_yaw_error = 0;
@@ -52,6 +49,10 @@ void bno_get_values() {
   roll_angle = gyroscope.x() * 180 / 3.14159265359;
   pitch_angle = gyroscope.y() * 180 / 3.14159265359;
   yaw_angle = gyroscope.z() * 180 /3.14159265359;
+
+  pid_roll_in = map(roll_angle, -180, 180, ROLL_WMIN, ROLL_WMAX);
+  pid_pitch_in = map(pitch_angle, -180, 180, PITCH_WMIN, PITCH_WMAX);
+  pid_yaw_in = map(yaw_angle, -180, 180, YAW_WMIN, YAW_WMAX);
   }
 
 
@@ -70,6 +71,11 @@ void control_update() {
   mL = throttle - pid_roll_out + pid_yaw_out;///////////////////////////
   mF = throttle + pid_pitch_out - pid_yaw_out;//////moteurs opposés/////
   mB = throttle - pid_pitch_out - pid_yaw_out;//////////////////////////
+
+  motor_right.writeMicroseconds(mR - 100);
+  motor_left.writeMicroseconds(mL - 100);
+  motor_front.writeMicroseconds(mF - 100);
+  motor_back.writeMicroseconds(mB - 100);
 }
 
 //fonction qui empeche les moteurs de tourner
@@ -134,8 +140,14 @@ void print_yaw_and_motors(){
   Serial.print(", ");
   Serial.println(yaw_angle);
 }
+void print_pid_values(){
+  Serial.print(input[0]);
+  Serial.print(", ");
+  Serial.println(pid_roll_out);
+}
+
 void print_that_bitch() {
-  print_rx_values();
+  print_pid_values();
 }
 
 //foncition qui s'execute une fois et au début
@@ -154,10 +166,6 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  motor_right.writeMicroseconds(mR - 100);
-  motor_left.writeMicroseconds(mL - 100);
-  motor_front.writeMicroseconds(mF - 100);
-  motor_back.writeMicroseconds(mB - 100);
-  print_pitch_and_roll();
+  print_yaw_and_motors();
 
 }

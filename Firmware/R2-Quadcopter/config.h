@@ -1,7 +1,6 @@
 ////////////////////////////////Definition des pins//////////////////////////////////
 
 ////////RX///////
-#define RX_PINS_OFFSET 2
 #define RX_PIN_ROLL A0
 #define RX_PIN_PITCH A1
 #define RX_PIN_THROTTLE A2
@@ -17,33 +16,33 @@
 ////////////////////////////////Define constants///////////////////////////////////////
 
 /////////////PID////////////////
-#define ROLL_PID_KP  0.250
+#define ROLL_PID_KP  10
 #define ROLL_PID_KI  0.950
 #define ROLL_PID_KD  0.011
 #define ROLL_PID_MIN  -200.0
 #define ROLL_PID_MAX  200.0
 
-#define PITCH_PID_KP  0.250
+#define PITCH_PID_KP  10
 #define PITCH_PID_KI  0.950               ////toutes les Kx a verifier et tester
 #define PITCH_PID_KD  0.011
 #define PITCH_PID_MIN  -200.0
 #define PITCH_PID_MAX  200.0
 
-#define YAW_PID_KP  0.680
+#define YAW_PID_KP  10
 #define YAW_PID_KI  0.500
 #define YAW_PID_KD  0.0001
 #define YAW_PID_MIN  -100.0
 #define YAW_PID_MAX  100.0
 
 
-#define ROLL_WMIN  -30////////// ici on laisse une
-#define ROLL_WMAX  30////////// erreur max de 30 deg
+ #define ROLL_WMIN  -30////////// 
+ #define ROLL_WMAX  30////////// 
 
-#define PITCH_WMIN  -30////////// ici on laisse une
-#define PITCH_WMAX  30////////// erreur max de 30 deg
+ #define PITCH_WMIN  -30//////////    valeurs a mapper pour le setpoint
+ #define PITCH_WMAX  30//////////  
 
-#define YAW_WMIN  -30////////// ici on laisse une
-#define YAW_WMAX  30////////// erreur max de 30 deg
+ #define YAW_WMIN  -30////////// 
+ #define YAW_WMAX  30////////// 
 
 
 

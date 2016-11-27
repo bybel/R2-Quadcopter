@@ -5,9 +5,12 @@ void pid_compute(){
   pid_pitch_out = PITCH_PID_KP*pitch_error + PITCH_PID_KI*Integral_pitch_error*dt + PITCH_PID_KD*Derivative_pitch_error/dt;
   pid_yaw_out = YAW_PID_KP*yaw_error + YAW_PID_KI*Integral_yaw_error*dt + YAW_PID_KD*Derivative_yaw_error/dt;
 
-  if(pid_roll_out > ROLL_WMAX) pid_roll_out = ROLL_WMAX;
-  if(pid_pitch_out > PITCH_WMAX) pid_pitch_out = PITCH_WMAX;
-  if(pid_yaw_out > YAW_WMAX) pid_yaw_out = YAW_WMAX;
+  if(pid_roll_out > ROLL_PID_MAX) pid_roll_out = ROLL_PID_MAX;
+  else if(pid_roll_out < ROLL_PID_MIN) pid_roll_out = ROLL_PID_MIN;
+  if(pid_pitch_out > PITCH_PID_MAX) pid_pitch_out = PITCH_PID_MAX;              //ajout de restrictions pour maximum et minimums
+  else if(pid_pitch_out < PITCH_PID_MIN) pid_pitch_out = PITCH_PID_MIN;
+  if(pid_yaw_out > YAW_PID_MAX) pid_yaw_out = YAW_PID_MAX;
+  else if(pid_yaw_out < YAW_PID_MIN) pid_yaw_out = YAW_PID_MIN;
   //Ici on borne l'output total pour ne pas avoir de très gros accoups
 
   //actualiser le setpoint, les erreurs et calculer les termes int et der
@@ -78,12 +81,12 @@ void pid_setpoint_update(){
     pid_roll_setpoint = 0;
   else
     pid_roll_setpoint = map(input[0], ROLL_RMIN, ROLL_RMAX, ROLL_WMIN, ROLL_WMAX);
-  //PITCH rx at mid level? +-20
+  //PITCH rx at mid level? +-20ms
   if (input[1] > THROTTLE_RMID - 20 && input[1] < THROTTLE_RMID + 20)
     pid_pitch_setpoint = 0;
   else
     pid_pitch_setpoint = map(input[1], PITCH_RMIN, PITCH_RMAX, PITCH_WMIN, PITCH_WMAX);
-  //YAW rx mid +-20
+  //YAW rx mid +-20ms
   if (input[3] > THROTTLE_RMID - 20 && input[3] < THROTTLE_RMID + 20)
     pid_yaw_setpoint = 0;
   else
