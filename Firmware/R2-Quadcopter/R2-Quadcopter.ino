@@ -13,7 +13,9 @@ Servo motor_left;
 Servo motor_front;
 Servo motor_back;
 
+
 // PID variables
+bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
 int dt = 3;//notre dt est de 100 millisecondes
 double pid_roll_in,   pid_roll_out,   pid_roll_setpoint, roll_error, Integral_roll_error, Derivative_roll_error, last_roll_error = 0;
 double pid_pitch_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error = 0;
