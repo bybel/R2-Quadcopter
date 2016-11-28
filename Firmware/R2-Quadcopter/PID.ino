@@ -20,10 +20,6 @@ void pid_compute(){
     pid_calculate_Int_and_Der();
   }
 
-  pid_roll_out = ROLL_PID_KP*roll_error + ROLL_PID_KI*Integral_roll_error*dt + ROLL_PID_KD*Derivative_roll_error/dt;
-  pid_pitch_out = PITCH_PID_KP*pitch_error + PITCH_PID_KI*Integral_pitch_error*dt + PITCH_PID_KD*Derivative_pitch_error/dt;
-  pid_yaw_out = YAW_PID_KP*yaw_error + YAW_PID_KI*Integral_yaw_error*dt + YAW_PID_KD*Derivative_yaw_error/dt;
-
   if(pid_roll_out > ROLL_PID_MAX) pid_roll_out = ROLL_PID_MAX;
   else if(pid_roll_out < ROLL_PID_MIN) pid_roll_out = ROLL_PID_MIN;
   if(pid_pitch_out > PITCH_PID_MAX) pid_pitch_out = PITCH_PID_MAX;              //ajout de restrictions pour maximum et minimums
@@ -51,14 +47,6 @@ void pid_setpoint_update(){
     pid_yaw_setpoint = 0;
   else
     pid_yaw_setpoint = map(input[3], YAW_RMIN, YAW_RMAX, YAW_WMIN, YAW_WMAX);
-
-  //actualiser le setpoint, les erreurs et calculer les termes int et der
-  pid_setpoint_update();
-  pid_errors_update();
-  pid_calculate_Int_and_Der();
-
-  //passer de la mesure anterieure a la nouvelle
-
 }
 
 //calculer les termes der et int pour l'intervalle delta-temps
@@ -112,6 +100,7 @@ void pid_errors_update(){
   yaw_error = pid_yaw_setpoint - pid_yaw_in;
 }
 
+
 void pid_calculate_AS_Int_and_Der(){
   //la partie integrale
   AS_Integral_roll_error += (AS_roll_error + AS_last_roll_error);
@@ -159,23 +148,4 @@ void pid_calculate_AS_Int_and_Der(){
 void AS_errors(){
   AS_roll_error = pid_roll_setpoint - roll_angle * AS_K;
   AS_pitch_error = pid_pitch_setpoint - pitch_angle * AS_K;
-
-//fonction qui prend la position du joystick
-void pid_setpoint_update(){
-  //Ici on regarde si le stick est au milieu et on laisse une marge
-  //d'erreur pour que quand on le lache, il donne une erraur nulle.
-  if (input[0] > THROTTLE_RMID - 20 && input[0] < THROTTLE_RMID + 20)
-    pid_roll_setpoint = 0;
-  else
-    pid_roll_setpoint = map(input[0], ROLL_RMIN, ROLL_RMAX, ROLL_WMIN, ROLL_WMAX);
-  //PITCH rx at mid level? +-20ms
-  if (input[1] > THROTTLE_RMID - 20 && input[1] < THROTTLE_RMID + 20)
-    pid_pitch_setpoint = 0;
-  else
-    pid_pitch_setpoint = map(input[1], PITCH_RMIN, PITCH_RMAX, PITCH_WMIN, PITCH_WMAX);
-  //YAW rx mid +-20ms
-  if (input[3] > THROTTLE_RMID - 20 && input[3] < THROTTLE_RMID + 20)
-    pid_yaw_setpoint = 0;
-  else
-    pid_yaw_setpoint = map(input[3], YAW_RMIN, YAW_RMAX, YAW_WMIN, YAW_WMAX);
 }
