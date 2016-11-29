@@ -17,9 +17,9 @@ Servo motor_back;
 // PID variables
 bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
 int dt = 3;//notre dt est de 100 millisecondes
-double pid_roll_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
-double pid_pitch_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
-double pid_yaw_in,    pid_yaw_out,    pid_yaw_setpoint,   yaw_error,   Integral_yaw_error,   Derivative_yaw_error,   last_yaw_error = 0;
+double pid_roll_speed_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
+double pid_pitch_speed_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
+double pid_yaw_speed_in,    pid_yaw_out,    pid_yaw_setpoint,   yaw_error,   Integral_yaw_error,   Derivative_yaw_error,   last_yaw_error = 0;
 
 // MOTORS
 int mR, mL, mF, mB;
@@ -31,9 +31,9 @@ unsigned long timer[4];
 byte last_channel[4];
 
 //IMU variables
-float roll_angle;
-float pitch_angle;
-float yaw_angle;
+float roll_speed, roll_angle;
+float pitch_speed, pitch_angle;
+float yaw_speed, yaw_angle;
 Adafruit_BNO055 bno = Adafruit_BNO055();
 
 
@@ -48,14 +48,14 @@ void bno_initialisation() {
 //calculer inclinaison
 void bno_get_values() {
   imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-  roll_angle = gyroscope.x() * 180 / 3.14159265359;
-  pitch_angle = gyroscope.y() * 180 / 3.14159265359;
-  yaw_angle = gyroscope.z() * 180 /3.14159265359;
+  roll_speed = gyroscope.x() * 180 / 3.14159265359;
+  pitch_speed = gyroscope.y() * 180 / 3.14159265359;
+  yaw_speed = gyroscope.z() * 180 / 3.14159265359;
 
-  pid_roll_in = map(roll_angle, -180, 180, ROLL_WMIN, ROLL_WMAX);
-  pid_pitch_in = map(pitch_angle, -180, 180, PITCH_WMIN, PITCH_WMAX);
-  pid_yaw_in = map(yaw_angle, -180, 180, YAW_WMIN, YAW_WMAX);
-  }
+  pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
+  pid_pitch_speed_in = map(pitch_speed, -180, 180, PITCH_WMIN, PITCH_WMAX);
+  pid_yaw_speed_in = map(yaw_speed, -180, 180, YAW_WMIN, YAW_WMAX);
+}
 
 
 ////fonctions de controle
@@ -99,7 +99,7 @@ void rx_initialize() {
 }
 
 //fonction qui lit les valeurs de la radio
-void rx_read(){
+void rx_read() {
   //TODO: Try with interrupts
   input[0] = pulseIn(A0, HIGH);
   input[1] = pulseIn(A1, HIGH);
@@ -118,20 +118,20 @@ void print_rx_values() {
   Serial.print(" - ");
   Serial.println(input[3]);
 }
-void print_pitch_and_roll(){
+void print_pitch_and_roll() {
   Serial.print(mR - 100);
   Serial.print(", ");
   Serial.print(mL - 100);
   Serial.print(", ");
-  Serial.print(roll_angle);
+  Serial.print(roll_speed);
   Serial.print("     …     ");
   Serial.print(mF - 100);
   Serial.print(", ");
   Serial.print(mB - 100);
   Serial.print(", ");
-  Serial.println(pitch_angle);
+  Serial.println(pitch_speed);
 }
-void print_yaw_and_motors(){
+void print_yaw_and_motors() {
   Serial.print(mR - 100);
   Serial.print(", ");
   Serial.print(mL - 100);
@@ -140,9 +140,9 @@ void print_yaw_and_motors(){
   Serial.print(", ");
   Serial.print(mB - 100);
   Serial.print(", ");
-  Serial.println(yaw_angle);
+  Serial.println(yaw_speed);
 }
-void print_pid_values(){
+void print_pid_values() {
   Serial.print(input[0]);
   Serial.print(", ");
   Serial.println(pid_roll_out);

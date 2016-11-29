@@ -35,17 +35,16 @@
 #define YAW_PID_MAX  100.0
 
 
- #define ROLL_WMIN  -30//////////
- #define ROLL_WMAX  30//////////
+#define ROLL_WMIN  -30//////////
+#define ROLL_WMAX  30//////////
 
- #define PITCH_WMIN  -30//////////    valeurs a mapper pour le setpoint
- #define PITCH_WMAX  30//////////
+#define PITCH_WMIN  -30//////////    valeurs a mapper pour le setpoint
+#define PITCH_WMAX  30//////////
 
- #define YAW_WMIN  -30//////////
- #define YAW_WMAX  30//////////
+#define YAW_WMIN  -30//////////
+#define YAW_WMAX  30//////////
 
 #define AS_K 1 //auto_adjust  le coef de 1
-
 
 ////////RX Config///////////////////
 #define THROTTLE_RMIN  1000
@@ -63,8 +62,6 @@
 
 #define YAW_RMIN  THROTTLE_RMIN
 #define YAW_RMAX  THROTTLE_RMAX
-
-
 
 /////////////Motor level vars////////////
 #define MOTOR_ZERO_LEVEL  1000
