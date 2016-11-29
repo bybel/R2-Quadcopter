@@ -145,7 +145,8 @@ void pid_calculate_AS_Int_and_Der() {
   //Ici on shift les mesures pour les prochaines
 }
 
-void AS_errors() {
-  AS_roll_error = pid_roll_setpoint - roll_speed * AS_K;
-  AS_pitch_error = pid_pitch_setpoint - pitch_speed * AS_K;
+void AS_errors_update() {
+  AS_roll_error = pid_roll_setpoint - roll_angle * AS_K;
+  AS_pitch_error = pid_pitch_setpoint - pitch_angle * AS_K;
+  yaw_error = pid_yaw_setpoint - pid_yaw_speed_in; //use the same yaw error as the accro mode
 }
