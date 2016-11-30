@@ -15,7 +15,7 @@ Servo motor_back;
 
 
 // PID variables
-bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
+bool auto_stabilisation_mode = true; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
 int dt = 3;//notre dt est de 100 millisecondes
 double pid_roll_speed_in, pid_roll_angle_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
 double pid_pitch_speed_in, pid_pitch_angle_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
@@ -81,10 +81,10 @@ void control_update() {
   mF = throttle + pid_pitch_out - pid_yaw_out;//////moteurs opposés/////
   mB = throttle - pid_pitch_out - pid_yaw_out;//////////////////////////
 
-  motor_right.writeMicroseconds(mR - 100);
-  motor_left.writeMicroseconds(mL - 100);
-  motor_front.writeMicroseconds(mF - 100);
-  motor_back.writeMicroseconds(mB - 100);
+  motor_right.writeMicroseconds(mR);
+  motor_left.writeMicroseconds(mL);
+  motor_front.writeMicroseconds(mF);
+  motor_back.writeMicroseconds(mB);
 }
 
 //fonction qui empeche les moteurs de tourner
@@ -126,32 +126,32 @@ void print_rx_values() {
   Serial.println(input[3]);
 }
 void print_pitch_and_roll() {
-  Serial.print(mR - 100);
-  Serial.print(", ");
-  Serial.print(mL - 100);
-  Serial.print(", ");
+  Serial.print(mR);
+  Serial.print(";");
+  Serial.print(mL);
+  Serial.print(";");
   Serial.print(roll_speed);
   Serial.print("     …     ");
-  Serial.print(mF - 100);
-  Serial.print(", ");
-  Serial.print(mB - 100);
-  Serial.print(", ");
+  Serial.print(mF);
+  Serial.print(";");
+  Serial.print(mB);
+  Serial.print(";");
   Serial.println(pitch_speed);
 }
 void print_yaw_and_motors() {
-  Serial.print(mR - 100);
-  Serial.print(", ");
-  Serial.print(mL - 100);
-  Serial.print(", ");
-  Serial.print(mF - 100);
-  Serial.print(", ");
-  Serial.print(mB - 100);
-  Serial.print(", ");
+  Serial.print(mR);
+  Serial.print(";");
+  Serial.print(mL);
+  Serial.print(";");
+  Serial.print(mF);
+  Serial.print(";");
+  Serial.print(mB);
+  Serial.print(";");
   Serial.println(yaw_speed);
 }
 void print_pid_values() {
   Serial.print(input[0]);
-  Serial.print(", ");
+  Serial.print(";");
   Serial.println(pid_roll_out);
 }
 
