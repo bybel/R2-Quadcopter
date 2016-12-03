@@ -15,7 +15,7 @@ Servo motor_back;
 
 
 // PID variables
-bool auto_stabilisation_mode = true; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
+bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
 int dt = 3;//notre dt est de 100 millisecondes
 double pid_roll_speed_in, pid_roll_angle_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
 double pid_pitch_speed_in, pid_pitch_angle_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
@@ -53,7 +53,7 @@ void bno_get_values() {
   yaw_speed = gyroscope.z() * 180 / 3.14159265359;
 
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-  roll_angle = euler.x();
+  roll_angle = euler.z();
   pitch_angle = euler.y();
 
   pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
@@ -127,41 +127,35 @@ void print_rx_values() {
 }
 void print_pitch_and_roll() {
   Serial.print(mR);
-  Serial.print(";");
+  Serial.print(",");
   Serial.print(mL);
-  Serial.print(";");
+  Serial.print(",");
   Serial.print(roll_speed);
   Serial.print("     …     ");
   Serial.print(mF);
-  Serial.print(";");
+  Serial.print(",");
   Serial.print(mB);
-  Serial.print(";");
+  Serial.print(",");
   Serial.println(pitch_speed);
 }
-void print_yaw_and_motors() {
+void print_motors() {
   Serial.print(mR);
-  Serial.print(";");
+  Serial.print(",");
   Serial.print(mL);
-  Serial.print(";");
+  Serial.print(",");
   Serial.print(mF);
-  Serial.print(";");
-  Serial.print(mB);
-  Serial.print(";");
-  Serial.println(yaw_speed);
+  Serial.print(",");
+  Serial.println(mB);
 }
 void print_pid_values() {
   Serial.print(input[0]);
-  Serial.print(";");
+  Serial.print(",");
   Serial.println(pid_roll_out);
-}
-
-void print_that_bitch() {
-  print_pid_values();
 }
 
 //foncition qui s'execute une fois et au début
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(250000);
   bno_initialisation();
   rx_initialize();
   motor_right.attach(MOTOR_PIN_RIGHT);
@@ -175,6 +169,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_yaw_and_motors();
-
+  print_motors();
 }
