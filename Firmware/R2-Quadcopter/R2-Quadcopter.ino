@@ -26,7 +26,7 @@ int mR, mL, mF, mB;
 
 //RX
 int throttle = THROTTLE_RMIN;
-volatile int input[4];
+volatile int input[6];
 unsigned long timer[4];
 byte last_channel[4];
 
@@ -69,6 +69,13 @@ void bno_get_values() {
 
 //calculer l'output et l'ecrire
 void control_update() {
+
+  if (input[5] < 1500) {
+    auto_stabilisation_mode = false;
+  }
+  else {
+    auto_stabilisation_mode = true;
+  }
   //fait correspondre les valeurs du joystick aux valeurs des moteurs
   throttle = map(input[2], THROTTLE_RMIN, THROTTLE_RMAX, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
 
@@ -103,6 +110,8 @@ void rx_initialize() {
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
   pinMode(A3, INPUT);
+  pinMode(A4, INPUT);
+  pinMode(A5, INPUT);
 }
 
 //fonction qui lit les valeurs de la radio
@@ -112,18 +121,24 @@ void rx_read() {
   input[1] = pulseIn(A1, HIGH);
   input[2] = pulseIn(A2, HIGH);
   input[3] = pulseIn(A3, HIGH);
+  input[4] = pulseIn(A4, HIGH); //Knob right
+  input[5] = pulseIn(A5, HIGH); //Knob left
 }
 
 
 //fonctions de debugging
 void print_rx_values() {
   Serial.print(input[0]);//Print values in millis
-  Serial.print(" - ");
+  Serial.print(",");
   Serial.print(input[1]);
-  Serial.print(" - ");
+  Serial.print(",");
   Serial.print(input[2]);
-  Serial.print(" - ");
-  Serial.println(input[3]);
+  Serial.print(",");
+  Serial.print(input[3]);
+  Serial.print(",");
+  Serial.print(input[4]);
+  Serial.print(",");
+  Serial.println(input[5]);
 }
 void print_pitch_and_roll() {
   Serial.print(mR);
@@ -169,5 +184,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_pitch_and_roll();
+  print_motors();
 }
