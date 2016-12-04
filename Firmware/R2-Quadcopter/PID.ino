@@ -16,8 +16,8 @@ void pid_compute() {
     pid_yaw_out = YAW_PID_KP * yaw_error + YAW_PID_KI * Integral_yaw_error * dt + YAW_PID_KD * Derivative_yaw_error / dt;//On laisse le yaw comme avant car il ne doit pas etre affecté pas l'auto_dajust
 
     pid_setpoint_update();
-    pid_errors_update();
-    pid_calculate_Int_and_Der();
+    AS_errors_update();
+    pid_calculate_AS_Int_and_Der();
   }
 
   if (pid_roll_out > ROLL_PID_MAX) pid_roll_out = ROLL_PID_MAX;
@@ -146,7 +146,7 @@ void pid_calculate_AS_Int_and_Der() {
 }
 
 void AS_errors_update() {
-  AS_roll_error = pid_roll_setpoint - roll_angle * AS_K;
-  AS_pitch_error = pid_pitch_setpoint - pitch_angle * AS_K;
+  AS_roll_error = pid_roll_setpoint - pid_roll_angle_in * AS_K;
+  AS_pitch_error = pid_pitch_setpoint - pid_pitch_angle_in * AS_K;
   yaw_error = pid_yaw_setpoint - pid_yaw_speed_in; //use the same yaw error as the accro mode
 }

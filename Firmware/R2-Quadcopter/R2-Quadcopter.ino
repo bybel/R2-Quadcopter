@@ -130,13 +130,13 @@ void print_pitch_and_roll() {
   Serial.print(",");
   Serial.print(mL);
   Serial.print(",");
-  Serial.print(roll_speed);
-  Serial.print("     …     ");
+  Serial.print(roll_angle);
+  Serial.print(",");
   Serial.print(mF);
   Serial.print(",");
   Serial.print(mB);
   Serial.print(",");
-  Serial.println(pitch_speed);
+  Serial.println(pitch_angle);
 }
 void print_motors() {
   Serial.print(mR);
@@ -169,5 +169,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_motors();
+  print_pitch_and_roll();
 }
