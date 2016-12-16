@@ -13,10 +13,9 @@ Servo motor_left;
 Servo motor_front;
 Servo motor_back;
 
-
 // PID variables
-bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé: utiliser le switch de input 5 ou 6
-int dt = 3;//notre dt est de 100 millisecondes
+bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé
+int dt = 3;
 double pid_roll_speed_in, pid_roll_angle_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
 double pid_pitch_speed_in, pid_pitch_angle_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
 double pid_yaw_speed_in,    pid_yaw_out,       pid_yaw_setpoint,   yaw_error,   Integral_yaw_error,   Derivative_yaw_error,   last_yaw_error = 0;
@@ -26,7 +25,7 @@ int mR, mL, mF, mB;
 
 //RX
 int throttle = THROTTLE_RMIN;
-volatile int input[6];
+volatile int input[4];
 unsigned long timer[4];
 byte last_channel[4];
 
@@ -35,7 +34,6 @@ float roll_speed, roll_angle;
 float pitch_speed, pitch_angle;
 float yaw_speed, yaw_angle;
 Adafruit_BNO055 bno = Adafruit_BNO055();
-
 
 ////fonctions de lecture du gyro et accel
 
@@ -47,21 +45,22 @@ void bno_initialisation() {
 
 //calculer inclinaison
 void bno_get_values() {
-  imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-  roll_speed = gyroscope.x() * 180 / 3.14159265359;
-  pitch_speed = gyroscope.y() * 180 / 3.14159265359;
-  yaw_speed = gyroscope.z() * 180 / 3.14159265359;
-
-  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-  roll_angle = euler.z();
-  pitch_angle = euler.y();
-
-  pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
-  pid_pitch_speed_in = map(pitch_speed, -180, 180, PITCH_WMIN, PITCH_WMAX);
-  pid_yaw_speed_in = map(yaw_speed, -180, 180, YAW_WMIN, YAW_WMAX);
-
-  pid_roll_angle_in = map(roll_angle, -180, 180, ROLL_WMIN, ROLL_WMAX);
-  pid_pitch_angle_in = map(pitch_angle, -180, 180, PITCH_WMIN, PITCH_WMAX);
+  if (auto_stabilisation_mode = false) {
+    imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    roll_speed = gyroscope.x() * 180 / 3.14159265359;
+    pitch_speed = gyroscope.y() * 180 / 3.14159265359;
+    yaw_speed = gyroscope.z() * 180 / 3.14159265359;
+    pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
+    pid_pitch_speed_in = map(pitch_speed, -180, 180, PITCH_WMIN, PITCH_WMAX);
+    pid_yaw_speed_in = map(yaw_speed, -180, 180, YAW_WMIN, YAW_WMAX);
+  }
+  else {
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    roll_angle = euler.z();
+    pitch_angle = euler.y();
+    pid_roll_angle_in = map(roll_angle, -180, 180, ROLL_WMIN, ROLL_WMAX);
+    pid_pitch_angle_in = map(pitch_angle, -180, 180, PITCH_WMIN, PITCH_WMAX);
+  }
 }
 
 
@@ -69,13 +68,6 @@ void bno_get_values() {
 
 //calculer l'output et l'ecrire
 void control_update() {
-
-  if (input[5] < 1500) {
-    auto_stabilisation_mode = false;
-  }
-  else {
-    auto_stabilisation_mode = true;
-  }
   //fait correspondre les valeurs du joystick aux valeurs des moteurs
   throttle = map(input[2], THROTTLE_RMIN, THROTTLE_RMAX, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
 
@@ -110,21 +102,15 @@ void rx_initialize() {
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
   pinMode(A3, INPUT);
-  pinMode(A4, INPUT);
-  pinMode(A5, INPUT);
 }
 
 //fonction qui lit les valeurs de la radio
 void rx_read() {
-  //TODO: Try with interrupts
   input[0] = pulseIn(A0, HIGH);
   input[1] = pulseIn(A1, HIGH);
   input[2] = pulseIn(A2, HIGH);
   input[3] = pulseIn(A3, HIGH);
-  input[4] = pulseIn(A4, HIGH); //Knob right
-  input[5] = pulseIn(A5, HIGH); //Knob left
 }
-
 
 //fonctions de debugging
 void print_rx_values() {
@@ -135,10 +121,6 @@ void print_rx_values() {
   Serial.print(input[2]);
   Serial.print(",");
   Serial.print(input[3]);
-  Serial.print(",");
-  Serial.print(input[4]);
-  Serial.print(",");
-  Serial.println(input[5]);
 }
 void print_pitch_and_roll() {
   Serial.print(mR);
@@ -162,15 +144,10 @@ void print_motors() {
   Serial.print(",");
   Serial.println(mB);
 }
-void print_pid_values() {
-  Serial.print(input[0]);
-  Serial.print(",");
-  Serial.println(pid_roll_out);
-}
 
 //foncition qui s'execute une fois et au début
 void setup() {
-  Serial.begin(250000);
+  Serial.begin(9600);
   bno_initialisation();
   rx_initialize();
   motor_right.attach(MOTOR_PIN_RIGHT);
@@ -184,5 +161,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_motors();
+  print_pitch_and_roll();
 }
