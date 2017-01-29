@@ -14,10 +14,11 @@ Servo motor_front;
 Servo motor_back;
 
 // PID variables
-int dt = 3;//notre dt est de 100 millisecondes
-double pid_roll_in,   pid_roll_out,   pid_roll_setpoint, roll_error, Integral_roll_error, Derivative_roll_error, last_roll_error = 0;
-double pid_pitch_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error = 0;
-double pid_yaw_in,    pid_yaw_out,    pid_yaw_setpoint, yaw_error, Integral_yaw_error, Derivative_yaw_error, last_yaw_error = 0;
+bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé
+int dt = 3;
+double pid_roll_speed_in, pid_roll_angle_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
+double pid_pitch_speed_in, pid_pitch_angle_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
+double pid_yaw_speed_in,    pid_yaw_out,       pid_yaw_setpoint,   yaw_error,   Integral_yaw_error,   Derivative_yaw_error,   last_yaw_error = 0;
 
 // MOTORS
 int mR, mL, mF, mB;
@@ -29,11 +30,10 @@ unsigned long timer[4];
 byte last_channel[4];
 
 //IMU variables
-float roll_angle;
-float pitch_angle;
-float yaw_angle;
+float roll_speed, roll_angle;
+float pitch_speed, pitch_angle;
+float yaw_speed, yaw_angle;
 Adafruit_BNO055 bno = Adafruit_BNO055();
-
 
 ////fonctions de lecture du gyro et accel
 
@@ -45,15 +45,23 @@ void bno_initialisation() {
 
 //calculer inclinaison
 void bno_get_values() {
-  imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-  roll_angle = gyroscope.x() * 180 / 3.14159265359;
-  pitch_angle = gyroscope.y() * 180 / 3.14159265359;
-  yaw_angle = gyroscope.z() * 180 /3.14159265359;
-
-  pid_roll_in = map(roll_angle, -180, 180, ROLL_WMIN, ROLL_WMAX);
-  pid_pitch_in = map(pitch_angle, -180, 180, PITCH_WMIN, PITCH_WMAX);
-  pid_yaw_in = map(yaw_angle, -180, 180, YAW_WMIN, YAW_WMAX);
+  if (auto_stabilisation_mode = false) {
+    imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    roll_speed = gyroscope.x() * 180 / 3.14159265359;
+    pitch_speed = gyroscope.y() * 180 / 3.14159265359;
+    yaw_speed = gyroscope.z() * 180 / 3.14159265359;
+    pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
+    pid_pitch_speed_in = map(pitch_speed, -180, 180, PITCH_WMIN, PITCH_WMAX);
+    pid_yaw_speed_in = map(yaw_speed, -180, 180, YAW_WMIN, YAW_WMAX);
   }
+  else {
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    roll_angle = euler.z();
+    pitch_angle = euler.y();
+    pid_roll_angle_in = map(roll_angle, -180, 180, ROLL_WMIN, ROLL_WMAX);
+    pid_pitch_angle_in = map(pitch_angle, -180, 180, PITCH_WMIN, PITCH_WMAX);
+  }
+}
 
 
 ////fonctions de controle
@@ -72,10 +80,10 @@ void control_update() {
   mF = throttle + pid_pitch_out - pid_yaw_out;//////moteurs opposés/////
   mB = throttle - pid_pitch_out - pid_yaw_out;//////////////////////////
 
-  motor_right.writeMicroseconds(mR - 100);
-  motor_left.writeMicroseconds(mL - 100);
-  motor_front.writeMicroseconds(mF - 100);
-  motor_back.writeMicroseconds(mB - 100);
+  motor_right.writeMicroseconds(mR);
+  motor_left.writeMicroseconds(mL);
+  motor_front.writeMicroseconds(mF);
+  motor_back.writeMicroseconds(mB);
 }
 
 //fonction qui empeche les moteurs de tourner
@@ -97,57 +105,44 @@ void rx_initialize() {
 }
 
 //fonction qui lit les valeurs de la radio
-void rx_read(){
-  //TODO: Try with interrupts
+void rx_read() {
   input[0] = pulseIn(A0, HIGH);
   input[1] = pulseIn(A1, HIGH);
   input[2] = pulseIn(A2, HIGH);
   input[3] = pulseIn(A3, HIGH);
 }
 
-
 //fonctions de debugging
 void print_rx_values() {
   Serial.print(input[0]);//Print values in millis
-  Serial.print(" - ");
+  Serial.print(",");
   Serial.print(input[1]);
-  Serial.print(" - ");
+  Serial.print(",");
   Serial.print(input[2]);
-  Serial.print(" - ");
-  Serial.println(input[3]);
+  Serial.print(",");
+  Serial.print(input[3]);
 }
-void print_pitch_and_roll(){
-  Serial.print(mR - 100);
-  Serial.print(", ");
-  Serial.print(mL - 100);
-  Serial.print(", ");
+void print_pitch_and_roll() {
+  Serial.print(mR);
+  Serial.print(",");
+  Serial.print(mL);
+  Serial.print(",");
   Serial.print(roll_angle);
-  Serial.print("     …     ");
-  Serial.print(mF - 100);
-  Serial.print(", ");
-  Serial.print(mB - 100);
-  Serial.print(", ");
+  Serial.print(",");
+  Serial.print(mF);
+  Serial.print(",");
+  Serial.print(mB);
+  Serial.print(",");
   Serial.println(pitch_angle);
 }
-void print_yaw_and_motors(){
-  Serial.print(mR - 100);
-  Serial.print(", ");
-  Serial.print(mL - 100);
-  Serial.print(", ");
-  Serial.print(mF - 100);
-  Serial.print(", ");
-  Serial.print(mB - 100);
-  Serial.print(", ");
-  Serial.println(yaw_angle);
-}
-void print_pid_values(){
-  Serial.print(input[0]);
-  Serial.print(", ");
-  Serial.println(pid_roll_out);
-}
-
-void print_that_bitch() {
-  print_pid_values();
+void print_motors() {
+  Serial.print(mR);
+  Serial.print(",");
+  Serial.print(mL);
+  Serial.print(",");
+  Serial.print(mF);
+  Serial.print(",");
+  Serial.println(mB);
 }
 
 //foncition qui s'execute une fois et au début
@@ -166,6 +161,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_yaw_and_motors();
-
+  print_pitch_and_roll();
 }
