@@ -8,10 +8,10 @@
 
 //mise en place des variables
 
-Servo motor_right;
-Servo motor_left;
-Servo motor_front;
-Servo motor_back;
+Servo esc_1; //FRONT RIGHT
+Servo esc_2; //BACK LEFT
+Servo esc_3; //FRONT LEFT
+Servo esc_4; //BACK RIGHT
 
 // PID variables
 bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé
@@ -21,7 +21,7 @@ double pid_pitch_speed_in, pid_pitch_angle_in,  pid_pitch_out,  pid_pitch_setpoi
 double pid_yaw_speed_in,    pid_yaw_out,       pid_yaw_setpoint,   yaw_error,   Integral_yaw_error,   Derivative_yaw_error,   last_yaw_error = 0;
 
 // MOTORS
-int mR, mL, mF, mB;
+int motorFR, motorBL, motorFL, motorBR;
 
 //RX
 int throttle = THROTTLE_RMIN;
@@ -75,28 +75,28 @@ void control_update() {
   pid_compute();
 
   //ecrire les valeurs aux moteurs
-  mR = throttle + pid_roll_out + pid_yaw_out;///////moteurs opposés/////
-  mL = throttle - pid_roll_out + pid_yaw_out;///////////////////////////
-  mF = throttle + pid_pitch_out - pid_yaw_out;//////moteurs opposés/////
-  mB = throttle - pid_pitch_out - pid_yaw_out;//////////////////////////
+  motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out;
+  motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out;
+  motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out;
+  motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out;
 
-  motor_right.writeMicroseconds(mR);
-  motor_left.writeMicroseconds(mL);
-  motor_front.writeMicroseconds(mF);
-  motor_back.writeMicroseconds(mB);
+  esc_1.writeMicroseconds(motorFR);
+  esc_2.writeMicroseconds(motorFL);
+  esc_3.writeMicroseconds(motorBL);
+  esc_4.writeMicroseconds(motorBR);
 }
 
 //fonction qui empeche les moteurs de tourner
 void motors_set_to_zero() {
-  motor_right.writeMicroseconds(MOTOR_ZERO_LEVEL);
-  motor_left.writeMicroseconds(MOTOR_ZERO_LEVEL);
-  motor_front.writeMicroseconds(MOTOR_ZERO_LEVEL);
-  motor_back.writeMicroseconds(MOTOR_ZERO_LEVEL);
+  esc_1.writeMicroseconds(MOTOR_ZERO_LEVEL);
+  esc_3.writeMicroseconds(MOTOR_ZERO_LEVEL);
+  esc_2.writeMicroseconds(MOTOR_ZERO_LEVEL);
+  esc_4.writeMicroseconds(MOTOR_ZERO_LEVEL);
 }
 
 ////fonction radio
 
-//fonction qui lit les interruptspour une execution plus rapide(pas encore)
+//TODO: fonction qui lit les interrupts pour une execution plus rapide(pas encore)
 void rx_initialize() {
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
@@ -112,48 +112,27 @@ void rx_read() {
   input[3] = pulseIn(A3, HIGH);
 }
 
-//fonctions de debugging
-void print_rx_values() {
-  Serial.print(input[0]);//Print values in millis
-  Serial.print(",");
-  Serial.print(input[1]);
-  Serial.print(",");
-  Serial.print(input[2]);
-  Serial.print(",");
-  Serial.print(input[3]);
-}
-void print_pitch_and_roll() {
-  Serial.print(mR);
-  Serial.print(",");
-  Serial.print(mL);
-  Serial.print(",");
-  Serial.print(roll_angle);
-  Serial.print(",");
-  Serial.print(mF);
-  Serial.print(",");
-  Serial.print(mB);
-  Serial.print(",");
-  Serial.println(pitch_angle);
-}
-void print_motors() {
-  Serial.print(mR);
-  Serial.print(",");
-  Serial.print(mL);
-  Serial.print(",");
-  Serial.print(mF);
-  Serial.print(",");
-  Serial.println(mB);
-}
-
 //foncition qui s'execute une fois et au début
 void setup() {
   Serial.begin(9600);
   bno_initialisation();
   rx_initialize();
-  motor_right.attach(MOTOR_PIN_RIGHT);
-  motor_left.attach(MOTOR_PIN_LEFT);
-  motor_front.attach(MOTOR_PIN_FRONT);
-  motor_back.attach(MOTOR_PIN_BACK);
+  esc_1.attach(MOTOR_PIN_FRONT_RIGHT);
+  esc_2.attach(MOTOR_PIN_FRONT_LEFT);
+  esc_3.attach(MOTOR_PIN_BACK_LEFT);
+  esc_4.attach(MOTOR_PIN_BACK_RIGHT);
+}
+
+//fonctions de debug
+
+void print_motors() {
+  Serial.print(motorFR);
+  Serial.print(",");
+  Serial.print(motorFL);
+  Serial.print(",");
+  Serial.print(motorBL);
+  Serial.print(",");
+  Serial.println(motorFR);
 }
 
 //fonction qui s'execute a chaque cycle
@@ -161,5 +140,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_pitch_and_roll();
+  print_motors();
 }

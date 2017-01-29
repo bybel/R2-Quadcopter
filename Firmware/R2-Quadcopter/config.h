@@ -7,11 +7,10 @@
 #define RX_PIN_YAW A3
 
 ////////Motors////////
-#define MOTOR_PIN_RIGHT 6
-#define MOTOR_PIN_LEFT 5
-#define MOTOR_PIN_FRONT 9
-#define MOTOR_PIN_BACK 10
-
+#define MOTOR_PIN_FRONT_RIGHT 6
+#define MOTOR_PIN_BACK_LEFT 5
+#define MOTOR_PIN_FRONT_LEFT 9
+#define MOTOR_PIN_BACK_RIGHT 10
 
 ////////////////////////////////Define constants///////////////////////////////////////
 
@@ -33,7 +32,6 @@
 #define YAW_PID_KD  0.0001
 #define YAW_PID_MIN  -100.0
 #define YAW_PID_MAX  100.0
-
 
 #define ROLL_WMIN  -30//////////
 #define ROLL_WMAX  30//////////
