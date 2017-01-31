@@ -33,6 +33,7 @@ byte last_channel[4];
 float roll_speed, roll_angle;
 float pitch_speed, pitch_angle;
 float yaw_speed, yaw_angle;
+const float pi = 3.14159265359;
 Adafruit_BNO055 bno = Adafruit_BNO055();
 
 ////fonctions de lecture du gyro et accel
@@ -47,9 +48,9 @@ void bno_initialisation() {
 void bno_get_values() {
   if (auto_stabilisation_mode = false) {
     imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    roll_speed = gyroscope.x() * 180 / 3.14159265359;
-    pitch_speed = gyroscope.y() * 180 / 3.14159265359;
-    yaw_speed = gyroscope.z() * 180 / 3.14159265359;
+    roll_speed = gyroscope.x() * 180 / pi;
+    pitch_speed = gyroscope.y() * 180 / pi;
+    yaw_speed = gyroscope.z() * 180 / pi;
     pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
     pid_pitch_speed_in = map(pitch_speed, -180, 180, PITCH_WMIN, PITCH_WMAX);
     pid_yaw_speed_in = map(yaw_speed, -180, 180, YAW_WMIN, YAW_WMAX);
@@ -75,10 +76,10 @@ void control_update() {
   pid_compute();
 
   //ecrire les valeurs aux moteurs
-  motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out;
-  motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out;
-  motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out;
-  motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out;
+  motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out; // Moteur avant droit
+  motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out; // Moteur avant gauche
+  motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out; // Moteur arrière gauche
+  motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out; // Moteur arrière droit
 
   esc_1.writeMicroseconds(motorFR);
   esc_2.writeMicroseconds(motorFL);
