@@ -12,7 +12,7 @@
 #define MOTOR_PIN_FRONT_LEFT 9
 #define MOTOR_PIN_BACK_RIGHT 10
 
-////////////////////////////////Define constants///////////////////////////////////////
+////////////////////////////////Definition des constantes///////////////////////////////////////
 
 /////////////PID////////////////
 #define ROLL_PID_KP  10
@@ -42,9 +42,9 @@
 #define YAW_WMIN  -30//////////
 #define YAW_WMAX  30//////////
 
-#define AS_K 1 //auto_adjust  le coef de 1
+#define AS_K 1 //auto_adjust --> coef de 1
 
-////////RX Config///////////////////
+////////Config RX///////////////////
 #define THROTTLE_RMIN  1000
 #define THROTTLE_SAFE_SHUTOFF 1120
 #define THROTTLE_RMAX  1900
@@ -61,7 +61,7 @@
 #define YAW_RMIN  THROTTLE_RMIN
 #define YAW_RMAX  THROTTLE_RMAX
 
-/////////////Motor level vars////////////
+/////////////Variable des moteurs////////////
 #define MOTOR_ZERO_LEVEL  1000
 #define MOTOR_ARM_START  1100
 #define MOTOR_MAX_LEVEL  2000

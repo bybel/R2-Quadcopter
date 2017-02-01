@@ -6,15 +6,15 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-//mise en place des variables
+// Mise en place des variables
 
-Servo esc_1; //FRONT RIGHT
-Servo esc_2; //BACK LEFT
-Servo esc_3; //FRONT LEFT
-Servo esc_4; //BACK RIGHT
+Servo esc_1; //FRONT RIGHT (avant droit)
+Servo esc_2; //BACK LEFT (arrière gauche)
+Servo esc_3; //FRONT LEFT (avant gauche)
+Servo esc_4; //BACK RIGHT (arrière droit)
 
-// PID variables
-bool auto_stabilisation_mode = false; //activer ou pas le mode auto-stabilisé
+// PID
+bool auto_stabilisation_mode = false; // Activer ou pas le mode auto-stabilisé
 int dt = 3;
 double pid_roll_speed_in, pid_roll_angle_in,   pid_roll_out,   pid_roll_setpoint,  roll_error,  Integral_roll_error,  Derivative_roll_error,  last_roll_error, AS_roll_error, AS_Integral_roll_error, AS_Derivative_roll_error, AS_last_roll_error = 0;
 double pid_pitch_speed_in, pid_pitch_angle_in,  pid_pitch_out,  pid_pitch_setpoint, pitch_error, Integral_pitch_error, Derivative_pitch_error, last_pitch_error, AS_pitch_error, AS_Integral_pitch_error, AS_Derivative_pitch_error, AS_last_pitch_error = 0;
@@ -23,20 +23,20 @@ double pid_yaw_speed_in,    pid_yaw_out,       pid_yaw_setpoint,   yaw_error,   
 // MOTORS
 int motorFR, motorBL, motorFL, motorBR;
 
-//RX
+// RX
 int throttle = THROTTLE_RMIN;
 volatile int input[4];
 unsigned long timer[4];
 byte last_channel[4];
 
-//IMU variables
+// IMU 
 float roll_speed, roll_angle;
 float pitch_speed, pitch_angle;
 float yaw_speed, yaw_angle;
 const float pi = 3.14159265359;
 Adafruit_BNO055 bno = Adafruit_BNO055();
 
-////fonctions de lecture du gyro et accel
+//// Fonctions de lecture du gyro et accel
 
 //Initiation du IMU
 void bno_initialisation() {
@@ -44,7 +44,7 @@ void bno_initialisation() {
   bno.setExtCrystalUse(true);
 }
 
-//calculer inclinaison
+// Calculer inclinaison
 void bno_get_values() {
   if (auto_stabilisation_mode = false) {
     imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
@@ -65,17 +65,17 @@ void bno_get_values() {
 }
 
 
-////fonctions de controle
+//// Fonctions de controle
 
-//calculer l'output et l'ecrire
+// Calculer l'output et l'ecrire
 void control_update() {
-  //fait correspondre les valeurs du joystick aux valeurs des moteurs
+  // Fait correspondre les valeurs du joystick aux valeurs des moteurs
   throttle = map(input[2], THROTTLE_RMIN, THROTTLE_RMAX, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
 
-  //calculer les valeurs a écrire aux moteurs
+  // Calculer les valeurs a écrire aux moteurs
   pid_compute();
 
-  //ecrire les valeurs aux moteurs
+  // Ecrire les valeurs aux moteurs
   motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out; // Moteur avant droit
   motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out; // Moteur avant gauche
   motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out; // Moteur arrière gauche
@@ -87,7 +87,7 @@ void control_update() {
   esc_4.writeMicroseconds(motorBR);
 }
 
-//fonction qui empeche les moteurs de tourner
+// Fonction qui empeche les moteurs de tourner
 void motors_set_to_zero() {
   esc_1.writeMicroseconds(MOTOR_ZERO_LEVEL);
   esc_3.writeMicroseconds(MOTOR_ZERO_LEVEL);
@@ -95,7 +95,7 @@ void motors_set_to_zero() {
   esc_4.writeMicroseconds(MOTOR_ZERO_LEVEL);
 }
 
-////fonction radio
+//// Fonctions radio
 
 //TODO: fonction qui lit les interrupts pour une execution plus rapide(pas encore)
 void rx_initialize() {
@@ -105,7 +105,7 @@ void rx_initialize() {
   pinMode(A3, INPUT);
 }
 
-//fonction qui lit les valeurs de la radio
+// Fonction qui lit les valeurs de la radio
 void rx_read() {
   input[0] = pulseIn(A0, HIGH);
   input[1] = pulseIn(A1, HIGH);
@@ -113,7 +113,7 @@ void rx_read() {
   input[3] = pulseIn(A3, HIGH);
 }
 
-//foncition qui s'execute une fois et au début
+// Fonction qui s'execute une fois et au début
 void setup() {
   Serial.begin(9600);
   bno_initialisation();
@@ -124,7 +124,7 @@ void setup() {
   esc_4.attach(MOTOR_PIN_BACK_RIGHT);
 }
 
-//fonctions de debug
+// Fonctions de debug
 
 void print_motors() {
   Serial.print(motorFR);
@@ -136,7 +136,7 @@ void print_motors() {
   Serial.println(motorFR);
 }
 
-//fonction qui s'execute a chaque cycle
+// Fonction qui s'execute a chaque cycle
 void loop() {
   rx_read();
   bno_get_values();
