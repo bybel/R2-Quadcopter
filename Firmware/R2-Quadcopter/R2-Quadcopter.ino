@@ -29,7 +29,7 @@ volatile int input[4];
 unsigned long timer[4];
 byte last_channel[4];
 
-// IMU 
+// IMU
 float roll_speed, roll_angle;
 float pitch_speed, pitch_angle;
 float yaw_speed, yaw_angle;
@@ -46,7 +46,7 @@ void bno_initialisation() {
 
 // Calculer inclinaison
 void bno_get_values() {
-  if (auto_stabilisation_mode = false) {
+  if (auto_stabilisation_mode == false) {
     imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
     roll_speed = gyroscope.x() * 180 / pi;
     pitch_speed = gyroscope.y() * 180 / pi;
@@ -76,10 +76,10 @@ void control_update() {
   pid_compute();
 
   // Ecrire les valeurs aux moteurs
-  motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out; // Moteur avant droit
-  motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out; // Moteur avant gauche
-  motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out; // Moteur arrière gauche
-  motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out; // Moteur arrière droit
+  motorFR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out - 375 - 100;
+  motorFL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out - 100;
+  motorBL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out - 100;
+  motorBR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out - 100;
 
   esc_1.writeMicroseconds(motorFR);
   esc_2.writeMicroseconds(motorFL);
@@ -133,7 +133,23 @@ void print_motors() {
   Serial.print(",");
   Serial.print(motorBL);
   Serial.print(",");
-  Serial.println(motorFR);
+  Serial.println(motorBR);
+}
+
+void print_pid(){
+  Serial.print(pid_roll_setpoint);
+  Serial.print(",");
+  Serial.print(pid_pitch_setpoint);
+  Serial.print(",");
+  Serial.println(pid_yaw_setpoint);
+}
+
+void print_imu(){
+  Serial.print(pid_roll_speed_in);
+  Serial.print(",");
+  Serial.print(pid_pitch_speed_in);
+  Serial.print(",");
+  Serial.println(pid_yaw_speed_in);
 }
 
 // Fonction qui s'execute a chaque cycle
