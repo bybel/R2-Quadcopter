@@ -7,8 +7,8 @@
 #define RX_PIN_YAW A3
 
 ////////Motors////////
-#define MOTOR_PIN_FRONT_RIGHT 5
-#define MOTOR_PIN_BACK_LEFT 6
+#define MOTOR_PIN_FRONT_RIGHT 6
+#define MOTOR_PIN_BACK_LEFT 5
 #define MOTOR_PIN_FRONT_LEFT 9
 #define MOTOR_PIN_BACK_RIGHT 10
 
