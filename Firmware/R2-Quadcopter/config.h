@@ -45,10 +45,10 @@
 #define AS_K 1 //auto_adjust --> coef de 1
 
 ////////Config RX///////////////////
-#define THROTTLE_RMIN  1000
+#define THROTTLE_RMIN  1100
 #define THROTTLE_SAFE_SHUTOFF 1120
-#define THROTTLE_RMAX  1900
-#define THROTTLE_RMID  1470
+#define THROTTLE_RMAX  1850
+#define THROTTLE_RMID  1500
 
 #define ROLL_RMIN  THROTTLE_RMIN
 #define ROLL_RMAX  THROTTLE_RMAX

@@ -76,10 +76,10 @@ void control_update() {
   pid_compute();
 
   // Ecrire les valeurs aux moteurs
-  motorFR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out - 375 - 100;
-  motorFL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out - 100;
-  motorBL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out - 100;
-  motorBR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out - 100;
+  motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out - 100;
+  motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out - 100;
+  motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out + 275;
+  motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out - 100;
 
   esc_1.writeMicroseconds(motorFR);
   esc_2.writeMicroseconds(motorFL);
@@ -133,10 +133,24 @@ void print_motors() {
   Serial.print(",");
   Serial.print(motorBL);
   Serial.print(",");
-  Serial.println(motorBR);
+  Serial.print(motorBR);
+  Serial.print(",");
+  Serial.print(pid_roll_speed_in);
+  Serial.print(",");
+  Serial.print(pid_pitch_speed_in);
+  Serial.print(",");
+  Serial.println(pid_yaw_speed_in);
 }
 
-void print_pid(){
+void print_pid_out() {
+  Serial.print(pid_roll_out);
+  Serial.print(",");
+  Serial.print(pid_pitch_out);
+  Serial.print(",");
+  Serial.println(pid_yaw_out);
+}
+
+void print_pid_setpoints() {
   Serial.print(pid_roll_setpoint);
   Serial.print(",");
   Serial.print(pid_pitch_setpoint);
@@ -144,12 +158,22 @@ void print_pid(){
   Serial.println(pid_yaw_setpoint);
 }
 
-void print_imu(){
+void print_imu() {
   Serial.print(pid_roll_speed_in);
   Serial.print(",");
   Serial.print(pid_pitch_speed_in);
   Serial.print(",");
   Serial.println(pid_yaw_speed_in);
+}
+
+void print_rx() {
+  Serial.print(input[0]);
+  Serial.print(",");
+  Serial.print(input[1]);
+  Serial.print(",");
+  Serial.print(input[2]);
+  Serial.print(",");
+  Serial.println(input[3]);
 }
 
 // Fonction qui s'execute a chaque cycle
