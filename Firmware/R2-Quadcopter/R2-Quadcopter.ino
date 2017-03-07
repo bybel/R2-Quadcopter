@@ -25,14 +25,8 @@ int motorFR, motorBL, motorFL, motorBR;
 // RX
 int throttle = THROTTLE_RMIN;
 volatile int input[4];
-volatile unsigned long chrono_start0;
-volatile unsigned long chrono_start1;
-volatile unsigned long chrono_start2;
-volatile unsigned long chrono_start3;
-volatile int last_interrupt_time0;
-volatile int last_interrupt_time1;
-volatile int last_interrupt_time2;
-volatile int last_interrupt_time3;
+volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3;
+volatile int last_interrupt_time0, last_interrupt_time1, last_interrupt_time2, last_interrupt_time3;
 
 // IMU
 float roll_speed, roll_angle;
