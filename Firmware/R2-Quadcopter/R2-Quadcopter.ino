@@ -7,7 +7,6 @@
 #include <utility/imumaths.h>
 
 // Mise en place des variables
-
 Servo esc_1; //FRONT RIGHT (avant droit)
 Servo esc_2; //BACK LEFT (arrière gauche)
 Servo esc_3; //FRONT LEFT (avant gauche)
@@ -125,7 +124,6 @@ void setup() {
 }
 
 // Fonctions de debug
-
 void print_motors() {
   Serial.print(motorFR);
   Serial.print(",");
@@ -181,5 +179,5 @@ void loop() {
   rx_read();
   bno_get_values();
   control_update();
-  print_motors();
+  print_rx();
 }
