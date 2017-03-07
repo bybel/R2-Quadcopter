@@ -25,8 +25,14 @@ int motorFR, motorBL, motorFL, motorBR;
 // RX
 int throttle = THROTTLE_RMIN;
 volatile int input[4];
-unsigned long timer[4];
-byte last_channel[4];
+volatile unsigned long chrono_start0;
+volatile unsigned long chrono_start1;
+volatile unsigned long chrono_start2;
+volatile unsigned long chrono_start3;
+volatile int last_interrupt_time0;
+volatile int last_interrupt_time1;
+volatile int last_interrupt_time2;
+volatile int last_interrupt_time3;
 
 // IMU
 float roll_speed, roll_angle;
@@ -98,18 +104,83 @@ void motors_set_to_zero() {
 
 //TODO: fonction qui lit les interrupts pour une execution plus rapide(pas encore)
 void rx_initialize() {
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  pinMode(A2, INPUT);
-  pinMode(A3, INPUT);
+  attachInterrupt(A0, calcSignal0, CHANGE);
+  attachInterrupt(A1, calcSignal1, CHANGE);
+  attachInterrupt(A2, calcSignal2, CHANGE);
+  attachInterrupt(A3, calcSignal3, CHANGE);
 }
 
-// Fonction qui lit les valeurs de la radio
-void rx_read() {
-  input[0] = pulseIn(A0, HIGH);
-  input[1] = pulseIn(A1, HIGH);
-  input[2] = pulseIn(A2, HIGH);
-  input[3] = pulseIn(A3, HIGH);
+// Fonctions qui lisent les valeurs de la radio
+void calcSignal0() 
+{
+    last_interrupt_time0 = micros(); 
+
+    if(digitalRead(A0) == HIGH) 
+    { 
+        chrono_start0 = micros();
+    } 
+    else
+    { 
+        if(chrono_start0 != 0)
+        { 
+            input[0] = ((volatile int)micros() - chrono_start0);
+            chrono_start0 = 0;
+        }
+    } 
+}
+
+void calcSignal1() 
+{
+    last_interrupt_time1 = micros(); 
+
+    if(digitalRead(A1) == HIGH) 
+    { 
+        chrono_start1 = micros();
+    } 
+    else
+    { 
+        if(chrono_start1 != 0)
+        { 
+            input[1] = ((volatile int)micros() - chrono_start1);
+            chrono_start1 = 0;
+        }
+    } 
+}
+
+void calcSignal2() 
+{
+    last_interrupt_time2 = micros(); 
+
+    if(digitalRead(A2) == HIGH) 
+    { 
+        chrono_start2 = micros();
+    } 
+    else
+    { 
+        if(chrono_start2 != 0)
+        { 
+            input[2] = ((volatile int)micros() - chrono_start2);
+            chrono_start2 = 0;
+        }
+    } 
+}
+
+void calcSignal3() 
+{
+    last_interrupt_time3 = micros(); 
+
+    if(digitalRead(A3) == HIGH) 
+    { 
+        chrono_start3 = micros();
+    } 
+    else
+    { 
+        if(chrono_start3 != 0)
+        { 
+            input[3] = ((volatile int)micros() - chrono_start3);
+            chrono_start3 = 0;
+        }
+    } 
 }
 
 // Fonction qui s'execute une fois et au début
@@ -155,7 +226,6 @@ void print_pid_setpoints() {
   Serial.print(",");
   Serial.println(pid_yaw_setpoint);
 }
-
 void print_imu() {
   Serial.print(pid_roll_speed_in);
   Serial.print(",");
@@ -176,8 +246,7 @@ void print_rx() {
 
 // Fonction qui s'execute a chaque cycle
 void loop() {
-  rx_read();
   bno_get_values();
   control_update();
-  print_rx();
+  print_motors();
 }
