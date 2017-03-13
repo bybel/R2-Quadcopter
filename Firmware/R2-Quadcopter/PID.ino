@@ -3,18 +3,34 @@ void pid_compute() {
   // Executer le PID et en tirer le resultat
   if (!auto_stabilisation_mode) {
     pid_roll_out = ROLL_PID_KP * roll_error + ROLL_PID_KI * Integral_roll_error * dt + ROLL_PID_KD * Derivative_roll_error / dt;
+    if(pid_roll_out > ROLL_PID_MAX)pid_roll_out = ROLL_PID_MAX;
+    else if(pid_roll_out < ROLL_PID_MIN)pid_roll_out = ROLL_PID_MIN;
+    
     pid_pitch_out = PITCH_PID_KP * pitch_error + PITCH_PID_KI * Integral_pitch_error * dt + PITCH_PID_KD * Derivative_pitch_error / dt;
+    if(pid_pitch_out > PITCH_PID_MAX)pid_pitch_out = PITCH_PID_MAX;
+    else if(pid_pitch_out < PITCH_PID_MIN)pid_pitch_out = PITCH_PID_MIN;
+    
     pid_yaw_out = YAW_PID_KP * yaw_error + YAW_PID_KI * Integral_yaw_error * dt + YAW_PID_KD * Derivative_yaw_error / dt;
-
+    if(pid_yaw_out > YAW_PID_MAX)pid_yaw_out = YAW_PID_MAX;
+    else if(pid_yaw_out < YAW_PID_MIN)pid_yaw_out = YAW_PID_MIN;
+    
     pid_setpoint_update();
     pid_errors_update();
     pid_calculate_Int_and_Der();
   }
   else if (auto_stabilisation_mode) {
     pid_roll_out = ROLL_PID_KP * AS_roll_error + ROLL_PID_KI * AS_Integral_roll_error * dt + ROLL_PID_KD * AS_Derivative_roll_error / dt;
+    if(pid_roll_out > ROLL_PID_MAX)pid_roll_out = ROLL_PID_MAX;
+    else if(pid_roll_out < ROLL_PID_MIN)pid_roll_out = ROLL_PID_MIN;
+    
     pid_pitch_out = PITCH_PID_KP * AS_pitch_error + PITCH_PID_KI * AS_Integral_pitch_error * dt + PITCH_PID_KD * AS_Derivative_pitch_error / dt;
-    pid_yaw_out = YAW_PID_KP * yaw_error + YAW_PID_KI * Integral_yaw_error * dt + YAW_PID_KD * Derivative_yaw_error / dt;//On laisse le yaw comme avant car il ne doit pas etre affecté pas l'auto_dajust
+    if(pid_pitch_out > PITCH_PID_MAX)pid_pitch_out = PITCH_PID_MAX;
+    else if(pid_pitch_out < PITCH_PID_MIN)pid_pitch_out = PITCH_PID_MIN;
 
+    pid_yaw_out = YAW_PID_KP * yaw_error + YAW_PID_KI * Integral_yaw_error * dt + YAW_PID_KD * Derivative_yaw_error / dt;//On laisse le yaw comme avant car il ne doit pas etre affecté pas l'auto_dajust
+    if(pid_yaw_out > YAW_PID_MAX)pid_yaw_out = YAW_PID_MAX;
+    else if(pid_yaw_out < YAW_PID_MIN)pid_yaw_out = YAW_PID_MIN;
+    
     pid_setpoint_update();
     AS_errors_update();
     pid_calculate_AS_Int_and_Der();
