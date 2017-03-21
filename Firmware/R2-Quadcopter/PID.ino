@@ -33,20 +33,17 @@ void pid_compute() {
 void pid_setpoint_update() {
   /* Ici on regarde si le stick est au milieu et on laisse une marg
    * d'erreur pour que quand on le lache, il donne une erraur nulle. */
-  if (input[0] > THROTTLE_RMID - 20 && input[0] < THROTTLE_RMID + 20)
-    pid_roll_setpoint = 0;
-  else
-    pid_roll_setpoint = map(input[0], ROLL_RMIN, ROLL_RMAX, ROLL_WMIN, ROLL_WMAX);
+  pid_roll_setpoint = 0;
+  if(input[0] > THROTTLE_RMID+10)pid_roll_setpoint = (input[0]-THROTTLE_RMID+10)/2;
+  else if(input[0] < THROTTLE_RMID-10)pid_roll_setpoint = (input[0]-THROTTLE_RMID-10)/2;
   // PITCH rx at mid level? +-20ms
-  if (input[1] > THROTTLE_RMID - 20 && input[1] < THROTTLE_RMID + 20)
-    pid_pitch_setpoint = 0;
-  else
-    pid_pitch_setpoint = map(input[1], PITCH_RMIN, PITCH_RMAX, PITCH_WMIN, PITCH_WMAX);
+  pid_pitch_setpoint = 0;
+  if(input[1] > THROTTLE_RMID+10)pid_pitch_setpoint = (input[1]-THROTTLE_RMID+10)/2;
+  else if(input[1] < THROTTLE_RMID-10)pid_pitch_setpoint = (input[1]-THROTTLE_RMID-10)/2;
   //YAW rx mid +-20ms
-  if (input[3] > THROTTLE_RMID - 20 && input[3] < THROTTLE_RMID + 20)
-    pid_yaw_setpoint = 0;
-  else
-    pid_yaw_setpoint = map(input[3], YAW_RMIN, YAW_RMAX, YAW_WMIN, YAW_WMAX);
+  pid_yaw_setpoint = 0;
+  if(input[3] > THROTTLE_RMID+10)pid_yaw_setpoint = (input[3]-THROTTLE_RMID+10)/2;
+  else if(input[3] < THROTTLE_RMID-10)pid_yaw_setpoint = (input[3]-THROTTLE_RMID-10)/2;
 }
 
 // Calculer les termes der et int pour l'intervalle delta-temps
