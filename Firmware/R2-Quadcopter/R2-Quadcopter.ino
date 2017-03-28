@@ -50,9 +50,9 @@ void bno_get_values() {
     roll_speed = gyroscope.x() * 180 / pi;
     pitch_speed = gyroscope.y() * 180 / pi;
     yaw_speed = gyroscope.z() * 180 / pi;
-    pid_roll_speed_in = map(roll_speed, -180, 180, ROLL_WMIN, ROLL_WMAX);
-    pid_pitch_speed_in = map(pitch_speed, -180, 180, PITCH_WMIN, PITCH_WMAX);
-    pid_yaw_speed_in = map(yaw_speed, -180, 180, YAW_WMIN, YAW_WMAX);
+    pid_roll_speed_in = roll_speed;
+    pid_pitch_speed_in = pitch_speed;
+    pid_yaw_speed_in = yaw_speed;
   }
   else {
     imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
@@ -75,10 +75,10 @@ void control_update() {
   pid_compute();
 
   // Ecrire les valeurs aux moteurs
-  motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out - 100;
-  motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out - 100;
-  motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out + 275;
-  motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out - 100;
+  motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out;
+  motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
+  motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
+  motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
 
   esc_1.writeMicroseconds(motorFR);
   esc_2.writeMicroseconds(motorFL);
