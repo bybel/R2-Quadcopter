@@ -24,9 +24,9 @@ int motorFR, motorBL, motorFL, motorBR;
 
 // RX
 int throttle = THROTTLE_RMIN;
-volatile int input[4];
-volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3;
-volatile int last_interrupt_time0, last_interrupt_time1, last_interrupt_time2, last_interrupt_time3;
+volatile int input[5];
+volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3,chrono_start4;
+volatile int last_interrupt_time0, last_interrupt_time1, last_interrupt_time2, last_interrupt_time3, last_interrupt_time4;
 
 // IMU
 float roll_speed, roll_angle;
@@ -79,11 +79,19 @@ void control_update() {
   motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
   motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
   motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
-
-  esc_1.writeMicroseconds(motorFR);
-  esc_2.writeMicroseconds(motorFL);
-  esc_3.writeMicroseconds(motorBL);
-  esc_4.writeMicroseconds(motorBR);
+  
+  if(input[4] > 1500){
+    esc_1.writeMicroseconds(motorFR);
+    esc_2.writeMicroseconds(motorFL);
+    esc_3.writeMicroseconds(motorBL);
+    esc_4.writeMicroseconds(motorBR);
+  }
+  if (input[4] < 1500) {
+    esc_1.writeMicroseconds(1000);
+    esc_3.writeMicroseconds(1000);
+    esc_2.writeMicroseconds(1000);
+    esc_4.writeMicroseconds(1000);
+  }
 }
 
 // Fonction qui empeche les moteurs de tourner
@@ -102,6 +110,7 @@ void rx_initialize() {
   attachInterrupt(A1, calcSignal1, CHANGE);
   attachInterrupt(A2, calcSignal2, CHANGE);
   attachInterrupt(A3, calcSignal3, CHANGE);
+  attachInterrupt(A4, calcSignal4, CHANGE);
 }
 
 // Fonctions qui lisent les valeurs de la radio
@@ -173,6 +182,24 @@ void calcSignal3()
         { 
             input[3] = ((volatile int)micros() - chrono_start3);
             chrono_start3 = 0;
+        }
+    } 
+}
+
+void calcSignal4() 
+{
+    last_interrupt_time4 = micros(); 
+
+    if(digitalRead(A4) == HIGH) 
+    { 
+        chrono_start4 = micros();
+    } 
+    else
+    { 
+        if(chrono_start4 != 0)
+        { 
+            input[4] = ((volatile int)micros() - chrono_start4);
+            chrono_start4 = 0;
         }
     } 
 }
