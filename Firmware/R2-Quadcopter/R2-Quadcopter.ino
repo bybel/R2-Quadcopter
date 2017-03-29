@@ -24,8 +24,8 @@ int motorFR, motorBL, motorFL, motorBR;
 
 // RX
 int throttle = THROTTLE_RMIN;
-volatile int input[5];
-volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3,chrono_start4;
+volatile int input[4], arm;
+volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3, chrono_start4;
 volatile int last_interrupt_time0, last_interrupt_time1, last_interrupt_time2, last_interrupt_time3, last_interrupt_time4;
 
 // IMU
@@ -79,19 +79,13 @@ void control_update() {
   motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
   motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
   motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
-  
-  if(input[4] > 1500){
-    esc_1.writeMicroseconds(motorFR);
-    esc_2.writeMicroseconds(motorFL);
-    esc_3.writeMicroseconds(motorBL);
-    esc_4.writeMicroseconds(motorBR);
-  }
-  if (input[4] < 1500) {
-    esc_1.writeMicroseconds(1000);
-    esc_3.writeMicroseconds(1000);
-    esc_2.writeMicroseconds(1000);
-    esc_4.writeMicroseconds(1000);
-  }
+
+
+  esc_1.writeMicroseconds(motorFR);
+  esc_2.writeMicroseconds(motorFL);
+  esc_3.writeMicroseconds(motorBL);
+  esc_4.writeMicroseconds(motorBR);
+
 }
 
 // Fonction qui empeche les moteurs de tourner
@@ -110,99 +104,81 @@ void rx_initialize() {
   attachInterrupt(A1, calcSignal1, CHANGE);
   attachInterrupt(A2, calcSignal2, CHANGE);
   attachInterrupt(A3, calcSignal3, CHANGE);
-  attachInterrupt(A4, calcSignal4, CHANGE);
 }
 
 // Fonctions qui lisent les valeurs de la radio
-void calcSignal0() 
+void calcSignal0()
 {
-    last_interrupt_time0 = micros(); 
+  last_interrupt_time0 = micros();
 
-    if(digitalRead(A0) == HIGH) 
-    { 
-        chrono_start0 = micros();
-    } 
-    else
-    { 
-        if(chrono_start0 != 0)
-        { 
-            input[0] = ((volatile int)micros() - chrono_start0);
-            chrono_start0 = 0;
-        }
-    } 
+  if (digitalRead(A0) == HIGH)
+  {
+    chrono_start0 = micros();
+  }
+  else
+  {
+    if (chrono_start0 != 0)
+    {
+      input[0] = ((volatile int)micros() - chrono_start0);
+      chrono_start0 = 0;
+    }
+  }
 }
 
-void calcSignal1() 
+void calcSignal1()
 {
-    last_interrupt_time1 = micros(); 
+  last_interrupt_time1 = micros();
 
-    if(digitalRead(A1) == HIGH) 
-    { 
-        chrono_start1 = micros();
-    } 
-    else
-    { 
-        if(chrono_start1 != 0)
-        { 
-            input[1] = ((volatile int)micros() - chrono_start1);
-            chrono_start1 = 0;
-        }
-    } 
+  if (digitalRead(A1) == HIGH)
+  {
+    chrono_start1 = micros();
+  }
+  else
+  {
+    if (chrono_start1 != 0)
+    {
+      input[1] = ((volatile int)micros() - chrono_start1);
+      chrono_start1 = 0;
+    }
+  }
 }
 
-void calcSignal2() 
+void calcSignal2()
 {
-    last_interrupt_time2 = micros(); 
+  last_interrupt_time2 = micros();
 
-    if(digitalRead(A2) == HIGH) 
-    { 
-        chrono_start2 = micros();
-    } 
-    else
-    { 
-        if(chrono_start2 != 0)
-        { 
-            input[2] = ((volatile int)micros() - chrono_start2);
-            chrono_start2 = 0;
-        }
-    } 
+  if (digitalRead(A2) == HIGH)
+  {
+    chrono_start2 = micros();
+  }
+  else
+  {
+    if (chrono_start2 != 0)
+    {
+      input[2] = ((volatile int)micros() - chrono_start2);
+      chrono_start2 = 0;
+    }
+  }
 }
 
-void calcSignal3() 
+void calcSignal3()
 {
-    last_interrupt_time3 = micros(); 
+  last_interrupt_time3 = micros();
 
-    if(digitalRead(A3) == HIGH) 
-    { 
-        chrono_start3 = micros();
-    } 
-    else
-    { 
-        if(chrono_start3 != 0)
-        { 
-            input[3] = ((volatile int)micros() - chrono_start3);
-            chrono_start3 = 0;
-        }
-    } 
+  if (digitalRead(A3) == HIGH)
+  {
+    chrono_start3 = micros();
+  }
+  else
+  {
+    if (chrono_start3 != 0)
+    {
+      input[3] = ((volatile int)micros() - chrono_start3);
+      chrono_start3 = 0;
+    }
+  }
 }
 
-void calcSignal4() 
-{
-    last_interrupt_time4 = micros(); 
-
-    if(digitalRead(A4) == HIGH) 
-    { 
-        chrono_start4 = micros();
-    } 
-    else
-    { 
-        if(chrono_start4 != 0)
-        { 
-            input[4] = ((volatile int)micros() - chrono_start4);
-            chrono_start4 = 0;
-        }
-    } 
-}
 
 // Fonction qui s'execute une fois et au début
 void setup() {
@@ -267,7 +243,13 @@ void print_rx() {
 
 // Fonction qui s'execute a chaque cycle
 void loop() {
+  arm = pulseIn(A4, HIGH);
   bno_get_values();
-  control_update();
-  print_motors();
+  
+  if (arm > 1500) {
+    control_update();
+  }
+  else {
+    motors_set_to_zero();
+  }
 }
