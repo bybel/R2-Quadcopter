@@ -252,4 +252,5 @@ void loop() {
   else {
     motors_set_to_zero();
   }
+  print_motors();
 }
