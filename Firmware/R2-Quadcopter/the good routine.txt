@@ -1,12 +1,13 @@
 First time routine:
-1. Calculate Max and Min for each stick.
+1. Calculate Max and Min for each stick
 .
 .
 .
 
-Quadcopter routine:
-1. Check that all sticks are at the bottom.
-2. Calibrate gyro and accel.
-3. Arm motors with a command (left stick to the left bottom).
-4. Fly.
-5. Land.
+Routine:
+1. Check throttle is at the bottom
+2. DISARMED? continue
+3. Arm motors with a command (left stick to the left bottom)
+4. Beep or LED blink
+5. ARMED? continue
+6. GOTO routine
