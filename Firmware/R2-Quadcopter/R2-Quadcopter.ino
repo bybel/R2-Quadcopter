@@ -271,10 +271,21 @@ void setup() {
   attachInterrupt(A4, calcSignal4, CHANGE);
 
   //Motors init
-  esc_1.attach(MOTOR_PIN_FRONT_RIGHT);
-  esc_2.attach(MOTOR_PIN_FRONT_LEFT);
-  esc_3.attach(MOTOR_PIN_BACK_LEFT);
-  esc_4.attach(MOTOR_PIN_BACK_RIGHT);
+  esc_1.attach(MOTOR_PIN_FRONT_RIGHT, 1000, 2000);
+  esc_2.attach(MOTOR_PIN_FRONT_LEFT, 1000, 2000);
+  esc_3.attach(MOTOR_PIN_BACK_LEFT, 1000, 2000);
+  esc_4.attach(MOTOR_PIN_BACK_RIGHT, 1000, 2000);
+  
+  esc_1.writeMicroseconds(1000);
+  esc_2.writeMicroseconds(1000);
+  esc_3.writeMicroseconds(1000);
+  esc_4.writeMicroseconds(1000);
+  
+  Proportional_roll, Integral_roll, Derivative_roll = 0;
+  Proportional_pitch, Integral_pitch, Derivative_pitch = 0;
+  Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
+  
+  delay(5000);
 }
 
 
@@ -323,6 +334,7 @@ void loop() {
     esc_2.writeMicroseconds(motorFL);
     esc_3.writeMicroseconds(motorBL);
     esc_4.writeMicroseconds(motorBR);
+    
   } else if (input4 < 1500) {
     motorFR = 1000;
     motorFL = 1000;
