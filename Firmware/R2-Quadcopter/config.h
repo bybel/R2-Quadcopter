@@ -16,20 +16,20 @@
 
 /////////////PID////////////////
 #define ROLL_PID_KP  1
-#define ROLL_PID_KI  0
-#define ROLL_PID_KD  0.5
+#define ROLL_PID_KI  0.03
+#define ROLL_PID_KD  15
 #define ROLL_PID_MIN  -200.0
 #define ROLL_PID_MAX  200.0
 
 #define PITCH_PID_KP  1
-#define PITCH_PID_KI  0             ////toutes les K a verifier et tester
-#define PITCH_PID_KD  0.5
+#define PITCH_PID_KI  0.03             ////toutes les K a verifier et tester
+#define PITCH_PID_KD  15
 #define PITCH_PID_MIN  -200.0
 #define PITCH_PID_MAX  200.0
 
 #define YAW_PID_KP  1
-#define YAW_PID_KI  0
-#define YAW_PID_KD  0.5
+#define YAW_PID_KI  0.03
+#define YAW_PID_KD  0
 #define YAW_PID_MIN  -100.0
 #define YAW_PID_MAX  100.0
 
