@@ -344,7 +344,11 @@ void loop() {
     esc_2.writeMicroseconds(motorFL);
     esc_3.writeMicroseconds(motorBL);
     esc_4.writeMicroseconds(motorBR);
+    Proportional_roll, Integral_roll, Derivative_roll = 0;
+    Proportional_pitch, Integral_pitch, Derivative_pitch = 0; //reset after disarm
+    Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
   print_motors();
+  delay(4);
 }

@@ -16,7 +16,7 @@
 
 /////////////PID////////////////
 #define ROLL_PID_KP  1
-#define ROLL_PID_KI  0.03
+#define ROLL_PID_KI  0.03 
 #define ROLL_PID_KD  1
 #define ROLL_PID_MIN  -200.0
 #define ROLL_PID_MAX  200.0
