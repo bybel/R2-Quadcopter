@@ -40,7 +40,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055();
 ////////////////////////////////////////////////////////////////////////
 void calcSignal0() {
   last_interrupt_time0 = micros();
-  if (digitalRead(A0) == HIGH) {
+  if (digitalRead(A4) == HIGH) {
     chrono_start0 = micros();
   }
   else {
@@ -53,7 +53,7 @@ void calcSignal0() {
 
 void calcSignal1() {
   last_interrupt_time1 = micros();
-  if (digitalRead(A1) == HIGH) {
+  if (digitalRead(A0) == HIGH) {
     chrono_start1 = micros();
   }
   else {
@@ -66,7 +66,7 @@ void calcSignal1() {
 
 void calcSignal2() {
   last_interrupt_time2 = micros();
-  if (digitalRead(A2) == HIGH) {
+  if (digitalRead(A1) == HIGH) {
     chrono_start2 = micros();
   }
   else {
@@ -79,7 +79,7 @@ void calcSignal2() {
 
 void calcSignal3() {
   last_interrupt_time3 = micros();
-  if (digitalRead(A3) == HIGH) {
+  if (digitalRead(A2) == HIGH) {
     chrono_start3 = micros();
   }
   else {
@@ -92,7 +92,7 @@ void calcSignal3() {
 
 void calcSignal4() {
   last_interrupt_time4 = micros();
-  if (digitalRead(A4) == HIGH) {
+  if (digitalRead(A3) == HIGH) {
     chrono_start4 = micros();
   }
   else {
@@ -264,11 +264,11 @@ void setup() {
   bno.setExtCrystalUse(true);
 
   //RX init
-  attachInterrupt(A0, calcSignal0, CHANGE);
-  attachInterrupt(A1, calcSignal1, CHANGE);
-  attachInterrupt(A2, calcSignal2, CHANGE);
-  attachInterrupt(A3, calcSignal3, CHANGE);
-  attachInterrupt(A4, calcSignal4, CHANGE);
+  attachInterrupt(A4, calcSignal0, CHANGE);
+  attachInterrupt(A0, calcSignal1, CHANGE);
+  attachInterrupt(A1, calcSignal2, CHANGE);
+  attachInterrupt(A2, calcSignal3, CHANGE);
+  attachInterrupt(A3, calcSignal4, CHANGE);
 
   //Motors init
   esc_1.attach(MOTOR_PIN_FRONT_RIGHT, 1000, 2000);
@@ -349,6 +349,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_motors();
+  print_rx();
   delay(4);
 }
