@@ -13,8 +13,7 @@ Servo esc_3; //FRONT LEFT (avant gauche)
 Servo esc_4; //BACK RIGHT (arrière droit)
 
 // PID
-bool auto_stabilisation_mode = false; // Activer ou pas le mode auto-stabilisé
-int dt = 3;
+bool auto_stabilisation_mode = true; // Activer ou pas le mode auto-stabilisé
 float pid_roll_out,   pid_roll_setpoint,  roll_error, Proportional_roll,  Integral_roll,  Derivative_roll,  last_roll_error, roll_angle_adjust = 0;
 float pid_pitch_out,  pid_pitch_setpoint, pitch_error, Proportional_pitch, Integral_pitch, Derivative_pitch, last_pitch_error, pitch_angle_adjust = 0;
 float pid_yaw_out,    pid_yaw_setpoint,   yaw_error,  Proportional_yaw,   Integral_yaw,   Derivative_yaw,   last_yaw_error = 0;
@@ -117,6 +116,11 @@ void calcSignal4() {
 void pid_compute() {
 
   //ROLL calculations
+  //definition du setpoint
+  pid_roll_setpoint = 0;
+  if (input1 > THROTTLE_RMID + 10)pid_roll_setpoint = (input1 - THROTTLE_RMID + 10)/3.0;
+  else if (input1 < THROTTLE_RMID - 10)pid_roll_setpoint = (input1 - THROTTLE_RMID - 10)/3.0;
+  
   roll_error = roll_speed - pid_roll_setpoint;
 
   Proportional_roll = ROLL_PID_KP * roll_error;
@@ -133,6 +137,11 @@ void pid_compute() {
 
 
   //PITCH calculations
+  //definition du setpoint
+  pid_pitch_setpoint = 0;
+  if (input2 > THROTTLE_RMID + 10)pid_pitch_setpoint = (input2 - THROTTLE_RMID + 10)/3.0;
+  else if (input2< THROTTLE_RMID - 10)pid_pitch_setpoint = (input2 - THROTTLE_RMID - 10)/3.0;
+  
   pitch_error = pitch_speed - pid_pitch_setpoint;
 
   Proportional_pitch = PITCH_PID_KP * pitch_error;
@@ -150,8 +159,75 @@ void pid_compute() {
   //YAW calculations
   //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
   pid_yaw_setpoint = 0;
-  if (input3 > THROTTLE_RMID + 10)pid_yaw_setpoint = (input3 - THROTTLE_RMID + 10) / 2.0;
-  else if (input3 < THROTTLE_RMID - 10)pid_yaw_setpoint = (input3 - THROTTLE_RMID - 10) / 2.0;
+  if (input4 > THROTTLE_RMID + 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID + 10) / 2.0;
+  else if (input4 < THROTTLE_RMID - 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID - 10) / 2.0;
+
+  yaw_error = yaw_speed - pid_yaw_setpoint;
+
+  Proportional_yaw = YAW_PID_KP * yaw_error;
+  Integral_yaw += YAW_PID_KI * yaw_error;
+  if (Integral_yaw > YAW_PID_MAX)Integral_yaw = YAW_PID_MAX;
+  else if (Integral_yaw < YAW_PID_MIN)Integral_yaw = YAW_PID_MIN;
+  Derivative_yaw = YAW_PID_KD * (yaw_error - last_yaw_error);
+
+  pid_yaw_out = Proportional_yaw + Integral_yaw + Derivative_yaw;
+  if (pid_yaw_out > YAW_PID_MAX)pid_yaw_out = YAW_PID_MAX;
+  else if (pid_yaw_out < YAW_PID_MIN)pid_yaw_out = YAW_PID_MIN;
+
+  last_yaw_error = yaw_error;
+}
+void pid_LEVEL_compute() {
+
+  //ROLL calculations
+  //definition du setpoint angle
+  pid_roll_setpoint = 0;
+  if (input1 > THROTTLE_RMID + 10)pid_roll_setpoint = input1 - THROTTLE_RMID + 10;
+  else if (input1 < THROTTLE_RMID - 10)pid_roll_setpoint = input1 - THROTTLE_RMID - 10;
+  pid_roll_setpoint -= roll_angle_adjust;            //On soustrait roll adjust pour que le setpoint soit change avec langle 
+  pid_roll_setpoint /= 2;
+  
+  roll_error = roll_speed - pid_roll_setpoint;
+
+  Proportional_roll = ROLL_PID_LEVEL_KP * roll_error;
+  Integral_roll += ROLL_PID_LEVEL_KI * roll_error;
+  if (Integral_roll > ROLL_PID_MAX)Integral_roll = ROLL_PID_MAX;
+  else if (Integral_roll < ROLL_PID_MIN)Integral_roll = ROLL_PID_MIN;
+  Derivative_roll = ROLL_PID_LEVEL_KD * (roll_error - last_roll_error);
+
+  pid_roll_out = Proportional_roll + Integral_roll + Derivative_roll;
+  if (pid_roll_out > ROLL_PID_MAX)pid_roll_out = ROLL_PID_MAX;
+  else if (pid_roll_out < ROLL_PID_MIN)pid_roll_out = ROLL_PID_MIN;
+
+  last_roll_error = roll_error;
+
+
+  //PITCH calculations
+  //definition du setpoint
+  pid_pitch_setpoint = 0;
+  if (input2 > THROTTLE_RMID + 10)pid_pitch_setpoint = input2 - THROTTLE_RMID + 10;
+  else if (input2 < THROTTLE_RMID - 10)pid_pitch_setpoint = input2 - THROTTLE_RMID - 10;
+  pid_pitch_setpoint -= pitch_angle_adjust;
+  pid_pitch_setpoint /= 2;
+  
+  pitch_error = pitch_speed - pid_pitch_setpoint;
+
+  Proportional_pitch = PITCH_PID_LEVEL_KP * pitch_error;
+  Integral_pitch += PITCH_PID_LEVEL_KI * pitch_error;
+  if (Integral_pitch > PITCH_PID_MAX)Integral_pitch = PITCH_PID_MAX;
+  else if (Integral_pitch < PITCH_PID_MIN)Integral_pitch = PITCH_PID_MIN;
+  Derivative_pitch = PITCH_PID_LEVEL_KD * (pitch_error - last_pitch_error);
+
+  pid_pitch_out = Proportional_pitch + Integral_pitch + Derivative_pitch;
+  if (pid_pitch_out > PITCH_PID_MAX)pid_pitch_out = PITCH_PID_MAX;
+  else if (pid_pitch_out < PITCH_PID_MIN)pid_pitch_out = PITCH_PID_MIN;
+
+  last_pitch_error = pitch_error;
+
+  //YAW calculations
+  //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
+  pid_yaw_setpoint = 0;
+  if (input4 > THROTTLE_RMID + 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID + 10) / 2.0;
+  else if (input4 < THROTTLE_RMID - 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID - 10) / 2.0;
 
   yaw_error = yaw_speed - pid_yaw_setpoint;
 
@@ -222,12 +298,19 @@ void print_pid_setpoints() {
   Serial.print(",");
   Serial.println(pid_yaw_setpoint);
 }
-void print_imu() {
+void print_imu_speed() {
   Serial.print(roll_speed);
   Serial.print(",");
   Serial.print(pitch_speed);
   Serial.print(",");
   Serial.println(yaw_speed);
+}
+void print_imu_angle() {
+  Serial.print(roll_angle);
+  Serial.print(",");
+  Serial.print(pitch_angle);
+  Serial.print(",");
+  Serial.println(yaw_angle);
 }
 
 void print_rx() {
@@ -238,6 +321,8 @@ void print_rx() {
   Serial.print(input2);
   Serial.print(",");
   Serial.println(input3);
+  Serial.print(",");
+  Serial.println(input4);
 }
 
 void print_roll_pid() {
@@ -286,79 +371,51 @@ void setup() {
 void loop() {
 
   //IMU calculations
-  if (auto_stabilisation_mode == false) {
-    imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    roll_speed = gyroscope.x() * 180 / pi;
-    pitch_speed = gyroscope.y() * 180 / pi;
-    yaw_speed = gyroscope.z() * 180 / pi;
-  //Setpoints calcules en deg/sec
-  //il sera de 0 quand le stick est au milieu
-    pid_roll_setpoint = 0;
-    if (input0 > THROTTLE_RMID + 10)pid_roll_setpoint = (input0 - THROTTLE_RMID + 10)/3.0;
-    else if (input0 < THROTTLE_RMID - 10)pid_roll_setpoint = (input0 - THROTTLE_RMID - 10)/3.0;
-  
-    pid_pitch_setpoint = 0;
-    if (input1 > THROTTLE_RMID + 10)pid_pitch_setpoint = (input1 - THROTTLE_RMID + 10)/3.0;
-    else if (input1 < THROTTLE_RMID - 10)pid_pitch_setpoint = (input1 - THROTTLE_RMID - 10)/3.0;
-  
-  } else {
-    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-    roll_angle = euler.z();
-    pitch_angle = euler.y();
-    yaw_angle = euler.x();
-  
-    //On transforme l'angle pour le soustraire au setpoint
-    roll_angle_adjust = roll_angle * 15;//la constante multipliee est a ajuster selon l'angle maximal que l'on veut
-    pitch_angle_adjust = pitch_angle *15;
-  
-    //On definit setpoint qui avec un stick au milieu sera de 0
-    pid_roll_setpoint = 0;
-    if (input0 > THROTTLE_RMID + 10)pid_roll_setpoint = input0 - THROTTLE_RMID + 10;
-    else if (input0 < THROTTLE_RMID - 10)pid_roll_setpoint = input0 - THROTTLE_RMID - 10;
-  
-    pid_roll_setpoint -= roll_angle_adjust;            //On soustrait roll adjust pour que le setpoint soit change avec langle 
-    pid_roll_setpoint /= 3;                           //pour avoir des angles en deg
-  
-    //////////////On procede de la meme maniere pour pitch/////////////////
-    pid_pitch_setpoint = 0;
-    if (input1 > THROTTLE_RMID + 10)pid_pitch_setpoint = input1 - THROTTLE_RMID + 10;
-    else if (input1 < THROTTLE_RMID - 10)pid_pitch_setpoint = input1 - THROTTLE_RMID - 10;
-  
-    pid_pitch_setpoint -= pitch_angle_adjust;
-    pid_pitch_setpoint /= 3;
-  }
+  //vitesse angulaire
+  imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+  roll_speed = gyroscope.x() * 180 / pi;
+  pitch_speed = gyroscope.y() * 180 / pi;
+  yaw_speed = gyroscope.z() * 180 / pi;
+  //angles d'euler
+  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  roll_angle = euler.z();
+  pitch_angle = euler.y();
+  yaw_angle = euler.x();
+
+  roll_angle_adjust = roll_angle * -25;  //la constante multipliee est a ajuster 
+  pitch_angle_adjust = pitch_angle * -25;//selon l'angle maximal que l'on veut
+
+  //PID
+  if (auto_stabilisation_mode == false)pid_compute();
+  else pid_LEVEL_compute();
 
   //MOTORS
-  throttle = input2;
-  //PID
-  pid_compute();
-
+  throttle = map(input3, THROTTLE_WMIN, THROTTLE_WMAX, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);;
 
   ///ARM switch
-  if (input4 > 1500) {
+  if (input0 > 1500) {
     if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX;//Afin de laisser un peu de controlle meme en full throttle .ca fait 1850
-    motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out;
-    if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
-    else if (motorFR < MOTOR_ZERO_LEVEL) motorFR = MOTOR_ARM_START;//histoire que les moteurs tournent quand meme quand on arme
-
+    motorFR = throttle - pid_roll_out;
     motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
-    if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL;
-    else if (motorFL < MOTOR_ZERO_LEVEL) motorFL = MOTOR_ARM_START;//histoire que les moteurs tournent quand meme quand on arme
-
-    motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
-    if (motorBL > MOTOR_MAX_LEVEL) motorBL = MOTOR_MAX_LEVEL;
-    else if (motorBL < MOTOR_ZERO_LEVEL) motorBL = MOTOR_ARM_START;//histoire que les moteurs tournent quand meme quand on arme
-
+    motorBL = throttle + pid_roll_out;
     motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
+    
+    if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
+    if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL;//on ne veut pas ecrire aux esc une valeur
+    if (motorBL > MOTOR_MAX_LEVEL) motorBL = MOTOR_MAX_LEVEL;//plus grande que 2000
     if (motorBR > MOTOR_MAX_LEVEL) motorBR = MOTOR_MAX_LEVEL;
-    else if (motorBR < MOTOR_ZERO_LEVEL) motorBR = MOTOR_ARM_START;//histoire que les moteurs tournent quand meme quand on arme
+    
+    if (motorFR < MOTOR_ZERO_LEVEL) motorFR = MOTOR_ZERO_LEVEL;
+    if (motorFL < MOTOR_ZERO_LEVEL) motorFL = MOTOR_ZERO_LEVEL;//histoire que les moteurs tournent
+    if (motorBL < MOTOR_ZERO_LEVEL) motorBL = MOTOR_ZERO_LEVEL;//quand meme quand on arme
+    if (motorBR < MOTOR_ZERO_LEVEL) motorBR = MOTOR_ZERO_LEVEL;
 
     esc_1.writeMicroseconds(motorFR);
     esc_2.writeMicroseconds(motorFL);
     esc_3.writeMicroseconds(motorBL);
     esc_4.writeMicroseconds(motorBR);
 
-  } else if (input4 < 1500) {
+  } else if (input0 < 1500) {
     motorFR = 1000;
     motorFL = 1000;
     motorBL = 1000;
@@ -372,6 +429,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_rx();
-  delay(20);
+  print_imu_angle();
+  delay(30);
 }
