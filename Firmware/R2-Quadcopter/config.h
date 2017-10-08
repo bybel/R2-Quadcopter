@@ -1,6 +1,7 @@
 ////////////////////////////////Definition des pins//////////////////////////////////
 
 ////////RX///////
+#define RX_PIN_ARM A4
 #define RX_PIN_ROLL A0
 #define RX_PIN_PITCH A1
 #define RX_PIN_THROTTLE A2
