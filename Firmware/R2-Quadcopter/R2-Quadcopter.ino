@@ -23,7 +23,7 @@ int motorFR, motorBL, motorFL, motorBR;
 
 // RX
 int throttle;
-volatile int input0, input1, input2, input3, input4;
+volatile int inputARM, inputROLL, inputPITCH, inputTHROTTLE, inputYAW;
 volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3, chrono_start4;
 volatile int last_interrupt_time0, last_interrupt_time1, last_interrupt_time2, last_interrupt_time3, last_interrupt_time4;
 
@@ -37,66 +37,61 @@ Adafruit_BNO055 bno = Adafruit_BNO055();
 ////////////////////////////////////////////////////////////////////////
 //INTERRUPTS
 ////////////////////////////////////////////////////////////////////////
-void calcSignal0() {
-  last_interrupt_time0 = micros();
-  if (digitalRead(A4) == HIGH) {
+void calcSignalARM() {
+  if (digitalRead(RX_PIN_ARM) == HIGH) {
     chrono_start0 = micros();
   }
   else {
     if (chrono_start0 != 0) {
-      input0 = ((volatile int)micros() - chrono_start0);
+      inputARM = ((volatile int)micros() - chrono_start0);
       chrono_start0 = 0;
     }
   }
 }
 
-void calcSignal1() {
-  last_interrupt_time1 = micros();
-  if (digitalRead(A0) == HIGH) {
+void calcSignalROLL() {
+  if (digitalRead(RX_PIN_ROLL) == HIGH) {
     chrono_start1 = micros();
   }
   else {
     if (chrono_start1 != 0) {
-      input1 = ((volatile int)micros() - chrono_start1);
+      inputROLL = ((volatile int)micros() - chrono_start1);
       chrono_start1 = 0;
     }
   }
 }
 
-void calcSignal2() {
-  last_interrupt_time2 = micros();
-  if (digitalRead(A1) == HIGH) {
+void calcSignalPITCH() {
+  if (digitalRead(RX_PIN_PITCH) == HIGH) {
     chrono_start2 = micros();
   }
   else {
     if (chrono_start2 != 0) {
-      input2 = ((volatile int)micros() - chrono_start2);
+      inputPITCH = ((volatile int)micros() - chrono_start2);
       chrono_start2 = 0;
     }
   }
 }
 
-void calcSignal3() {
-  last_interrupt_time3 = micros();
-  if (digitalRead(A2) == HIGH) {
+void calcSignalTHROTTLE() {
+  if (digitalRead(RX_PIN_THROTTLE) == HIGH) {
     chrono_start3 = micros();
   }
   else {
     if (chrono_start3 != 0) {
-      input3 = ((volatile int)micros() - chrono_start3);
+      inputTHROTTLE = ((volatile int)micros() - chrono_start3);
       chrono_start3 = 0;
     }
   }
 }
 
-void calcSignal4() {
-  last_interrupt_time4 = micros();
-  if (digitalRead(A3) == HIGH) {
+void calcSignalYAW() {
+  if (digitalRead(RX_PIN_YAW) == HIGH) {
     chrono_start4 = micros();
   }
   else {
     if (chrono_start4 != 0) {
-      input4 = ((volatile int)micros() - chrono_start4);
+      inputYAW = ((volatile int)micros() - chrono_start4);
       chrono_start4 = 0;
     }
   }
@@ -118,8 +113,8 @@ void pid_compute() {
   //ROLL calculations
   //definition du setpoint
   pid_roll_setpoint = 0;
-  if (input1 > THROTTLE_RMID + 10)pid_roll_setpoint = (input1 - THROTTLE_RMID + 10)/3.0;
-  else if (input1 < THROTTLE_RMID - 10)pid_roll_setpoint = (input1 - THROTTLE_RMID - 10)/3.0;
+  if (inputROLL > THROTTLE_RMID + 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID + 10)/3.0;
+  else if (inputROLL < THROTTLE_RMID - 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID - 10)/3.0;
   
   roll_error = roll_speed - pid_roll_setpoint;
 
@@ -139,8 +134,8 @@ void pid_compute() {
   //PITCH calculations
   //definition du setpoint
   pid_pitch_setpoint = 0;
-  if (input2 > THROTTLE_RMID + 10)pid_pitch_setpoint = (input2 - THROTTLE_RMID + 10)/3.0;
-  else if (input2< THROTTLE_RMID - 10)pid_pitch_setpoint = (input2 - THROTTLE_RMID - 10)/3.0;
+  if (inputPITCH > THROTTLE_RMID + 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID + 10)/3.0;
+  else if (inputPITCH< THROTTLE_RMID - 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID - 10)/3.0;
   
   pitch_error = pitch_speed - pid_pitch_setpoint;
 
@@ -159,8 +154,8 @@ void pid_compute() {
   //YAW calculations
   //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
   pid_yaw_setpoint = 0;
-  if (input4 > THROTTLE_RMID + 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID + 10) / 2.0;
-  else if (input4 < THROTTLE_RMID - 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID - 10) / 2.0;
+  if (inputYAW > THROTTLE_RMID + 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID + 10) / 2.0;
+  else if (inputYAW < THROTTLE_RMID - 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID - 10) / 2.0;
 
   yaw_error = yaw_speed - pid_yaw_setpoint;
 
@@ -181,8 +176,8 @@ void pid_LEVEL_compute() {
   //ROLL calculations
   //definition du setpoint angle
   pid_roll_setpoint = 0;
-  if (input1 > THROTTLE_RMID + 10)pid_roll_setpoint = input1 - THROTTLE_RMID + 10;
-  else if (input1 < THROTTLE_RMID - 10)pid_roll_setpoint = input1 - THROTTLE_RMID - 10;
+  if (inputROLL > THROTTLE_RMID + 10)pid_roll_setpoint = inputROLL - THROTTLE_RMID + 10;
+  else if (inputROLL < THROTTLE_RMID - 10)pid_roll_setpoint = inputROLL - THROTTLE_RMID - 10;
   pid_roll_setpoint -= roll_angle_adjust;            //On soustrait roll adjust pour que le setpoint soit change avec langle 
   pid_roll_setpoint /= 2;
   
@@ -204,8 +199,8 @@ void pid_LEVEL_compute() {
   //PITCH calculations
   //definition du setpoint
   pid_pitch_setpoint = 0;
-  if (input2 > THROTTLE_RMID + 10)pid_pitch_setpoint = input2 - THROTTLE_RMID + 10;
-  else if (input2 < THROTTLE_RMID - 10)pid_pitch_setpoint = input2 - THROTTLE_RMID - 10;
+  if (inputPITCH > THROTTLE_RMID + 10)pid_pitch_setpoint = inputPITCH - THROTTLE_RMID + 10;
+  else if (inputPITCH < THROTTLE_RMID - 10)pid_pitch_setpoint = inputPITCH - THROTTLE_RMID - 10;
   pid_pitch_setpoint -= pitch_angle_adjust;
   pid_pitch_setpoint /= 2;
   
@@ -226,8 +221,8 @@ void pid_LEVEL_compute() {
   //YAW calculations
   //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
   pid_yaw_setpoint = 0;
-  if (input4 > THROTTLE_RMID + 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID + 10) / 2.0;
-  else if (input4 < THROTTLE_RMID - 10)pid_yaw_setpoint = (input4 - THROTTLE_RMID - 10) / 2.0;
+  if (inputYAW > THROTTLE_RMID + 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID + 10) / 2.0;
+  else if (inputYAW < THROTTLE_RMID - 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID - 10) / 2.0;
 
   yaw_error = yaw_speed - pid_yaw_setpoint;
 
@@ -314,15 +309,15 @@ void print_imu_angle() {
 }
 
 void print_rx() {
-  Serial.print(input0);
+  Serial.print(inputARM);
   Serial.print(",");
-  Serial.print(input1);
+  Serial.print(inputROLL);
   Serial.print(",");
-  Serial.print(input2);
+  Serial.print(inputPITCH);
   Serial.print(",");
-  Serial.println(input3);
+  Serial.println(inputTHROTTLE);
   Serial.print(",");
-  Serial.println(input4);
+  Serial.println(inputYAW);
 }
 
 void print_roll_pid() {
@@ -342,11 +337,11 @@ void setup() {
   bno.setExtCrystalUse(true);
 
   //RX init
-  attachInterrupt(A4, calcSignal0, CHANGE);
-  attachInterrupt(A0, calcSignal1, CHANGE);
-  attachInterrupt(A1, calcSignal2, CHANGE);
-  attachInterrupt(A2, calcSignal3, CHANGE);
-  attachInterrupt(A3, calcSignal4, CHANGE);
+  attachInterrupt(RX_PIN_ARM, calcSignalARM, CHANGE);
+  attachInterrupt(RX_PIN_ROLL, calcSignalROLL, CHANGE);
+  attachInterrupt(RX_PIN_PITCH, calcSignalPITCH, CHANGE);
+  attachInterrupt(RX_PIN_THROTTLE, calcSignalTHROTTLE, CHANGE);
+  attachInterrupt(RX_PIN_YAW, calcSignalYAW, CHANGE);
 
   //Motors init
   esc_1.attach(MOTOR_PIN_FRONT_RIGHT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
@@ -390,10 +385,10 @@ void loop() {
   else pid_LEVEL_compute();
 
   //MOTORS
-  throttle = map(input3, THROTTLE_WMIN, THROTTLE_WMAX, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);;
+  throttle = inputTHROTTLE;
 
-  ///ARM switch
-  if (input0 > 1500) {
+  //ARM switch
+  if (inputARM > 1500) {
     if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX;//Afin de laisser un peu de controlle meme en full throttle .ca fait 1850
     motorFR = throttle - pid_roll_out;
     motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
@@ -415,7 +410,7 @@ void loop() {
     esc_3.writeMicroseconds(motorBL);
     esc_4.writeMicroseconds(motorBR);
 
-  } else if (input0 < 1500) {
+  } else if (inputARM < 1500) {
     motorFR = 1000;
     motorFL = 1000;
     motorBL = 1000;
