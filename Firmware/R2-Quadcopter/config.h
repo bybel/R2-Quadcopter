@@ -8,10 +8,10 @@
 #define RX_PIN_YAW A3
 
 ////////Motors////////
-#define MOTOR_PIN_FRONT_RIGHT 6
-#define MOTOR_PIN_BACK_LEFT 5
-#define MOTOR_PIN_FRONT_LEFT 9
-#define MOTOR_PIN_BACK_RIGHT 10
+#define MOTOR_PIN_FRONT_RIGHT 4 //ESC1
+#define MOTOR_PIN_BACK_LEFT 3 //ESC2
+#define MOTOR_PIN_FRONT_LEFT 1 //ESC3
+#define MOTOR_PIN_BACK_RIGHT 0 //ESC4
 
 ////////////////////////////////Definition des constantes///////////////////////////////////////
 

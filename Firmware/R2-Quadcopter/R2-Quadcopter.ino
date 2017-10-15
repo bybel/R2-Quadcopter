@@ -443,6 +443,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_imu_speed();
+  print_rx();
   delay(36);
 }
