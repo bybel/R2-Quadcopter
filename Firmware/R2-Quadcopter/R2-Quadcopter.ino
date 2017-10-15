@@ -419,10 +419,10 @@ void loop() {
     if (motorBL > MOTOR_MAX_LEVEL) motorBL = MOTOR_MAX_LEVEL;//plus grande que 2000
     if (motorBR > MOTOR_MAX_LEVEL) motorBR = MOTOR_MAX_LEVEL;
     
-    if (motorFR < MOTOR_ZERO_LEVEL) motorFR = MOTOR_ZERO_LEVEL;
-    if (motorFL < MOTOR_ZERO_LEVEL) motorFL = MOTOR_ZERO_LEVEL;//histoire que les moteurs tournent
-    if (motorBL < MOTOR_ZERO_LEVEL) motorBL = MOTOR_ZERO_LEVEL;//quand meme quand on arme
-    if (motorBR < MOTOR_ZERO_LEVEL) motorBR = MOTOR_ZERO_LEVEL;
+    if (motorFR < MOTOR_ZERO_LEVEL + 80) motorFR = MOTOR_ZERO_LEVEL +80;
+    if (motorFL < MOTOR_ZERO_LEVEL + 80) motorFL = MOTOR_ZERO_LEVEL +80;//histoire que les moteurs tournent
+    if (motorBL < MOTOR_ZERO_LEVEL + 80) motorBL = MOTOR_ZERO_LEVEL +80;//quand meme quand on arme
+    if (motorBR < MOTOR_ZERO_LEVEL + 80) motorBR = MOTOR_ZERO_LEVEL +80;
 
     esc_1.writeMicroseconds(motorFR);
     esc_2.writeMicroseconds(motorFL);
@@ -443,6 +443,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_rx();
+  print_imu_speed();
   delay(36);
 }
