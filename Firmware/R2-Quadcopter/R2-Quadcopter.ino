@@ -8,7 +8,7 @@
 
 // Mise en place des variables
 Servo esc_1; //FRONT RIGHT (avant droit)
-Servo esc_2; //BACK LEFT (arrière gauche)
+Servo esc_2; //BACK LEFT (arrière gauche)e
 Servo esc_3; //FRONT LEFT (avant gauche)
 Servo esc_4; //BACK RIGHT (arrière droit)
 
@@ -386,12 +386,12 @@ void loop() {
 
   imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
   roll_speed = gyroscope.x() * 180 / pi;
-  pitch_speed = gyroscope.y() * 180 / pi;
-  yaw_speed = gyroscope.z() * 180 / pi;
+  pitch_speed = -1 * gyroscope.y() * 180 / pi;
+  yaw_speed = -1 * gyroscope.z() * 180 / pi;
   //angles d'euler
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-  roll_angle = euler.z();
-  pitch_angle = euler.y();
+  roll_angle = -1 * euler.z();
+  pitch_angle = -1 * euler.y();
   yaw_angle = euler.x();
   
   //maintenant = 0;
@@ -443,6 +443,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_motors();
+  print_imu_speed();
   delay(36);
 }
