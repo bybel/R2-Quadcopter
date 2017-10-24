@@ -7,21 +7,21 @@
 #include <utility/imumaths.h>
 
 // Mise en place des variables
-Servo esc_1; //FRONT RIGHT (avant droit)
-Servo esc_2; //BACK LEFT (arrière gauche)e
-Servo esc_3; //FRONT LEFT (avant gauche)
-Servo esc_4; //BACK RIGHT (arrière droit)
+Servo esc_1; //FRONT RIGHT (Moteur avant droit)
+Servo esc_2; //BACK LEFT (Moteur arrière gauche)e
+Servo esc_3; //FRONT LEFT (Moteur avant gauche)
+Servo esc_4; //BACK RIGHT (Moteur arrière droit)
 
 // PID
-byte dt = 20;//c'est le temps que doit attendre le PID avant de calculer
-unsigned long dernierTemps;//est utile aussi pour le dt du PID
+byte dt = 20; // C'est le temps que doit attendre le PID avant de calculer
+unsigned long dernierTemps; // Est utile aussi pour le dt du PID
 unsigned long maintenant, deltaTemps;
 bool auto_stabilisation_mode = false; // Activer ou pas le mode auto-stabilisé
 float pid_roll_out,   pid_roll_setpoint,  roll_error, Proportional_roll,  Integral_roll,  Derivative_roll,  last_roll_error, roll_angle_adjust = 0;
 float pid_pitch_out,  pid_pitch_setpoint, pitch_error, Proportional_pitch, Integral_pitch, Derivative_pitch, last_pitch_error, pitch_angle_adjust = 0;
 float pid_yaw_out,    pid_yaw_setpoint,   yaw_error,  Proportional_yaw,   Integral_yaw,   Derivative_yaw,   last_yaw_error = 0;
 
-// MOTORS
+// MOTEURS
 int motorFR, motorBL, motorFL, motorBR;
 
 // RX
@@ -36,7 +36,7 @@ float roll_speed, roll_angle;
 float pitch_speed, pitch_angle;
 float yaw_speed, yaw_angle;
 const float pi = 3.14159265359;
-Adafruit_BNO055 bno = Adafruit_BNO055();
+Adafruit_BNO055 bno = Adafruit_BNO055(); // Initialisation de l'objet BNO
 
 ////////////////////////////////////////////////////////////////////////
 //INTERRUPTS
@@ -49,9 +49,6 @@ void calcSignalARM() {
     if (chrono_start0 != 0) {
       inputARMprev = inputARM;
       inputARM = ((volatile int)micros() - chrono_start0);
-      if (inputARM >= inputARMprev + 300){
-        inputARM = inputARMprev + 300;
-      }
       chrono_start0 = 0;
     }
   }
@@ -67,6 +64,9 @@ void calcSignalROLL() {
       inputROLL = ((volatile int)micros() - chrono_start1);
       if (inputROLL >= inputROLLprev + 300){
         inputROLL = inputROLLprev + 300;
+      }
+      if (inputROLL <= inputROLLprev - 300){
+        inputROLL = inputROLLprev - 300;
       }
       chrono_start1 = 0;
     }
@@ -84,6 +84,9 @@ void calcSignalPITCH() {
       if (inputPITCH >= inputPITCHprev + 300){
         inputPITCH = inputPITCHprev + 300;
       }
+      if (inputPITCH <= inputPITCHprev - 300){
+        inputPITCH = inputPITCHprev - 300;
+      }
       chrono_start2 = 0;
     }
   }
@@ -99,6 +102,9 @@ void calcSignalTHROTTLE() {
       inputTHROTTLE = ((volatile int)micros() - chrono_start3);
       if (inputTHROTTLE >= inputTHROTTLEprev + 300){
         inputTHROTTLE = inputTHROTTLEprev + 300;
+      }
+      if (inputTHROTTLE <= inputTHROTTLEprev - 300){
+        inputTHROTTLE = inputTHROTTLEprev - 300;
       }
       chrono_start3 = 0;
     }
@@ -116,102 +122,97 @@ void calcSignalYAW() {
       if (inputYAW >= inputYAWprev + 300){
         inputYAW = inputYAWprev + 300;
       }
+      if (inputYAW <= inputYAWprev - 300){
+        inputYAW = inputYAWprev - 300;
+      }
       chrono_start4 = 0;
     }
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//PID controller
+//Controleur PID
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void pid_compute() {
   unsigned long maintenant = millis();
   int deltaTemps = (maintenant - dernierTemps);
   //if(deltaTemps >= dt){
-    
+
     //ROLL calculations
     //definition du setpoint
     pid_roll_setpoint = 0;
     if (inputROLL > THROTTLE_RMID + 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID + 10)/3.0;
     else if (inputROLL < THROTTLE_RMID - 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID - 10)/3.0;
-    
+
     roll_error = roll_speed - pid_roll_setpoint;
-  
+
     Proportional_roll = ROLL_PID_KP * roll_error;
     Integral_roll += (ROLL_PID_KI ) * roll_error;
     if (Integral_roll > ROLL_PID_MAX)Integral_roll = ROLL_PID_MAX;
     else if (Integral_roll < ROLL_PID_MIN)Integral_roll = ROLL_PID_MIN;
     Derivative_roll = ROLL_PID_KD * (roll_error - last_roll_error);
-  
+
     pid_roll_out = Proportional_roll + Integral_roll + Derivative_roll;
     if (pid_roll_out > ROLL_PID_MAX)pid_roll_out = ROLL_PID_MAX;
     else if (pid_roll_out < ROLL_PID_MIN)pid_roll_out = ROLL_PID_MIN;
-  
+
     last_roll_error = roll_error;
-  
-  
+
+
     //PITCH calculations
     //definition du setpoint
     pid_pitch_setpoint = 0;
     if (inputPITCH > THROTTLE_RMID + 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID + 10)/3.0;
     else if (inputPITCH< THROTTLE_RMID - 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID - 10)/3.0;
-    
+
     pitch_error = pitch_speed - pid_pitch_setpoint;
-  
+
     Proportional_pitch = PITCH_PID_KP * pitch_error;
     Integral_pitch += PITCH_PID_KI * pitch_error;
     if (Integral_pitch > PITCH_PID_MAX)Integral_pitch = PITCH_PID_MAX;
     else if (Integral_pitch < PITCH_PID_MIN)Integral_pitch = PITCH_PID_MIN;
     Derivative_pitch = PITCH_PID_KD * (pitch_error - last_pitch_error);
-  
+
     pid_pitch_out = Proportional_pitch + Integral_pitch + Derivative_pitch;
     if (pid_pitch_out > PITCH_PID_MAX)pid_pitch_out = PITCH_PID_MAX;
     else if (pid_pitch_out < PITCH_PID_MIN)pid_pitch_out = PITCH_PID_MIN;
-  
+
     last_pitch_error = pitch_error;
-  
+
     //YAW calculations
     //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
     pid_yaw_setpoint = 0;
     if (inputYAW > THROTTLE_RMID + 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID + 10) / 3.0;
     else if (inputYAW < THROTTLE_RMID - 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID - 10) / 3.0;
-  
+
     yaw_error = yaw_speed - pid_yaw_setpoint;
-  
+
     Proportional_yaw = YAW_PID_KP * yaw_error;
     Integral_yaw += YAW_PID_KI * yaw_error;
     if (Integral_yaw > YAW_PID_MAX)Integral_yaw = YAW_PID_MAX;
     else if (Integral_yaw < YAW_PID_MIN)Integral_yaw = YAW_PID_MIN;
     Derivative_yaw = YAW_PID_KD * (yaw_error - last_yaw_error);
-  
+
     pid_yaw_out = Proportional_yaw + Integral_yaw + Derivative_yaw;
     if (pid_yaw_out > YAW_PID_MAX)pid_yaw_out = YAW_PID_MAX;
     else if (pid_yaw_out < YAW_PID_MIN)pid_yaw_out = YAW_PID_MIN;
-  
+
     last_yaw_error = yaw_error;
 
     //dernierTemps = maintenant;
   //}
-  
+
 }
 void pid_LEVEL_compute() {
 
-  //ROLL calculations
+  //ROLL calculs
   //definition du setpoint angle
   pid_roll_setpoint = 0;
   if (inputROLL > THROTTLE_RMID + 10)pid_roll_setpoint = inputROLL - THROTTLE_RMID + 10;
   else if (inputROLL < THROTTLE_RMID - 10)pid_roll_setpoint = inputROLL - THROTTLE_RMID - 10;
-  pid_roll_setpoint -= roll_angle_adjust;            //On soustrait roll adjust pour que le setpoint soit change avec langle 
+  pid_roll_setpoint -= roll_angle_adjust;            //On soustrait roll adjust pour que le setpoint soit change avec langle
   pid_roll_setpoint /= 2;
-  
+
   roll_error = roll_speed - pid_roll_setpoint;
 
   Proportional_roll = ROLL_PID_LEVEL_KP * roll_error;
@@ -227,14 +228,14 @@ void pid_LEVEL_compute() {
   last_roll_error = roll_error;
 
 
-  //PITCH calculations
+  //PITCH calculs
   //definition du setpoint
   pid_pitch_setpoint = 0;
   if (inputPITCH > THROTTLE_RMID + 10)pid_pitch_setpoint = inputPITCH - THROTTLE_RMID + 10;
   else if (inputPITCH < THROTTLE_RMID - 10)pid_pitch_setpoint = inputPITCH - THROTTLE_RMID - 10;
   pid_pitch_setpoint -= pitch_angle_adjust;
   pid_pitch_setpoint /= 2;
-  
+
   pitch_error = pitch_speed - pid_pitch_setpoint;
 
   Proportional_pitch = PITCH_PID_LEVEL_KP * pitch_error;
@@ -249,7 +250,7 @@ void pid_LEVEL_compute() {
 
   last_pitch_error = pitch_error;
 
-  //YAW calculations
+  //YAW calculs
   //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
   pid_yaw_setpoint = 0;
   if (inputYAW > THROTTLE_RMID + 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID + 10) / 2.0;
@@ -351,7 +352,7 @@ void print_pid_to_setpoint() {
   Serial.print(roll_speed);
   Serial.print(",");
   Serial.println(pid_roll_setpoint);
- 
+
 }
 
 
@@ -383,15 +384,13 @@ void setup() {
   Proportional_roll, Integral_roll, Derivative_roll = 0;
   Proportional_pitch, Integral_pitch, Derivative_pitch = 0;
   Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
-
-  delay(5000);
 }
 
 
 // Fonction qui s'execute a chaque cycle
 void loop() {
 
-  //IMU calculations
+  //IMU calculs
   //vitesse angulaire
 
   imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
@@ -403,9 +402,9 @@ void loop() {
   roll_angle = -1 * euler.z();
   pitch_angle = -1 * euler.y();
   yaw_angle = euler.x();
-  
+
   //maintenant = 0;
-  roll_angle_adjust = roll_angle * -15;  //la constante multipliee est a ajuster 
+  roll_angle_adjust = roll_angle * -15;  //la constante multipliee est a ajuster
   pitch_angle_adjust = pitch_angle * -15;//selon l'angle maximal que l'on veut
 
   //PID
@@ -423,12 +422,12 @@ void loop() {
     motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
     motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
     motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
-   
+
     if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
     if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL; //on ne veut pas ecrire aux esc une valeur
     if (motorBL > MOTOR_MAX_LEVEL) motorBL = MOTOR_MAX_LEVEL; //plus grande que 2000
     if (motorBR > MOTOR_MAX_LEVEL) motorBR = MOTOR_MAX_LEVEL;
-    
+
     if (motorFR < MOTOR_ZERO_LEVEL + 100) motorFR = MOTOR_ZERO_LEVEL + 100;
     if (motorFL < MOTOR_ZERO_LEVEL + 100) motorFL = MOTOR_ZERO_LEVEL + 100; //histoire que les moteurs tournent
     if (motorBL < MOTOR_ZERO_LEVEL + 100) motorBL = MOTOR_ZERO_LEVEL + 100; //quand meme quand on arme
