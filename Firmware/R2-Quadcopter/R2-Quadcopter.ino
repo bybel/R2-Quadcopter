@@ -27,6 +27,7 @@ int motorFR, motorBL, motorFL, motorBR;
 // RX
 int throttle;
 volatile int inputARM, inputROLL, inputPITCH, inputTHROTTLE, inputYAW;
+volatile int inputARMprev, inputROLLprev, inputPITCHprev, inputTHROTTLEprev, inputYAWprev;
 volatile unsigned long chrono_start0, chrono_start1, chrono_start2, chrono_start3, chrono_start4;
 volatile int last_interrupt_time0, last_interrupt_time1, last_interrupt_time2, last_interrupt_time3, last_interrupt_time4;
 
@@ -46,7 +47,11 @@ void calcSignalARM() {
   }
   else {
     if (chrono_start0 != 0) {
+      inputARMprev = inputARM;
       inputARM = ((volatile int)micros() - chrono_start0);
+      if (inputARM >= inputARMprev + 300){
+        inputARM = inputARMprev + 300;
+      }
       chrono_start0 = 0;
     }
   }
@@ -58,7 +63,11 @@ void calcSignalROLL() {
   }
   else {
     if (chrono_start1 != 0) {
+      inputROLLprev = inputROLL;
       inputROLL = ((volatile int)micros() - chrono_start1);
+      if (inputROLL >= inputROLLprev + 300){
+        inputROLL = inputROLLprev + 300;
+      }
       chrono_start1 = 0;
     }
   }
@@ -70,7 +79,11 @@ void calcSignalPITCH() {
   }
   else {
     if (chrono_start2 != 0) {
+      inputPITCHprev = inputPITCH;
       inputPITCH = ((volatile int)micros() - chrono_start2);
+      if (inputPITCH >= inputPITCHprev + 300){
+        inputPITCH = inputPITCHprev + 300;
+      }
       chrono_start2 = 0;
     }
   }
@@ -82,7 +95,11 @@ void calcSignalTHROTTLE() {
   }
   else {
     if (chrono_start3 != 0) {
+      inputTHROTTLEprev = inputTHROTTLE;
       inputTHROTTLE = ((volatile int)micros() - chrono_start3);
+      if (inputTHROTTLE >= inputTHROTTLEprev + 300){
+        inputTHROTTLE = inputTHROTTLEprev + 300;
+      }
       chrono_start3 = 0;
     }
   }
@@ -94,7 +111,11 @@ void calcSignalYAW() {
   }
   else {
     if (chrono_start4 != 0) {
+      inputYAWprev = inputYAW;
       inputYAW = ((volatile int)micros() - chrono_start4);
+      if (inputYAW >= inputYAWprev + 300){
+        inputYAW = inputYAWprev + 300;
+      }
       chrono_start4 = 0;
     }
   }
@@ -249,17 +270,6 @@ void pid_LEVEL_compute() {
   last_yaw_error = yaw_error;
 }
 
-/////////AUTO STABILIZATION MANQUANTE
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
 // Fonction qui empeche les moteurs de tourner
 void motors_set_to_zero() {
   esc_1.writeMicroseconds(MOTOR_ZERO_LEVEL);
@@ -347,7 +357,7 @@ void print_pid_to_setpoint() {
 
 // Fonction qui s'execute une fois et au début
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   //BNO init
   bno.begin();
   bno.setExtCrystalUse(true);
@@ -408,11 +418,11 @@ void loop() {
 
   //ARM switch
   if (inputARM > 1500) {
-    if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX; //Afin de laisser un peu de controlle meme en full throttle .ca fait 1850
-    motorFR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out;
-    motorFL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out;
-    motorBL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out;
-    motorBR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out;
+    if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX; //Afin de laisser un peu de controlle meme en full throttle ca fait 1850
+    motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out;
+    motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
+    motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
+    motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
    
     if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
     if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL; //on ne veut pas ecrire aux esc une valeur
@@ -443,6 +453,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_imu_speed();
-  delay(36);
+  print_rx();
+  delay(20);
 }
