@@ -435,8 +435,8 @@ void loop() {
     if (motorBR < MOTOR_ZERO_LEVEL + 100) motorBR = MOTOR_ZERO_LEVEL + 100;
 
     esc_1.writeMicroseconds(motorFR);
-    esc_2.writeMicroseconds(motorFL);
-    esc_3.writeMicroseconds(motorBL);
+    esc_2.writeMicroseconds(motorBL);
+    esc_3.writeMicroseconds(motorFL);
     esc_4.writeMicroseconds(motorBR);
 
   } else if (inputARM < 1500) {
