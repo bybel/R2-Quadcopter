@@ -62,11 +62,11 @@ void calcSignalROLL() {
     if (chrono_start1 != 0) {
       inputROLLprev = inputROLL;
       inputROLL = ((volatile int)micros() - chrono_start1);
-      if (inputROLL >= inputROLLprev + 300){
-        inputROLL = inputROLLprev + 300;
+      if (inputROLL >= inputROLLprev + 200){
+        inputROLL = inputROLLprev + 200;
       }
-      if (inputROLL <= inputROLLprev - 300){
-        inputROLL = inputROLLprev - 300;
+      if (inputROLL <= inputROLLprev - 200){
+        inputROLL = inputROLLprev - 200;
       }
       chrono_start1 = 0;
     }
@@ -81,11 +81,11 @@ void calcSignalPITCH() {
     if (chrono_start2 != 0) {
       inputPITCHprev = inputPITCH;
       inputPITCH = ((volatile int)micros() - chrono_start2);
-      if (inputPITCH >= inputPITCHprev + 300){
-        inputPITCH = inputPITCHprev + 300;
+      if (inputPITCH >= inputPITCHprev + 200){
+        inputPITCH = inputPITCHprev + 200;
       }
-      if (inputPITCH <= inputPITCHprev - 300){
-        inputPITCH = inputPITCHprev - 300;
+      if (inputPITCH <= inputPITCHprev - 200){
+        inputPITCH = inputPITCHprev - 200;
       }
       chrono_start2 = 0;
     }
@@ -100,11 +100,11 @@ void calcSignalTHROTTLE() {
     if (chrono_start3 != 0) {
       inputTHROTTLEprev = inputTHROTTLE;
       inputTHROTTLE = ((volatile int)micros() - chrono_start3);
-      if (inputTHROTTLE >= inputTHROTTLEprev + 300){
-        inputTHROTTLE = inputTHROTTLEprev + 300;
+      if (inputTHROTTLE >= inputTHROTTLEprev + 200){
+        inputTHROTTLE = inputTHROTTLEprev + 200;
       }
-      if (inputTHROTTLE <= inputTHROTTLEprev - 300){
-        inputTHROTTLE = inputTHROTTLEprev - 300;
+      if (inputTHROTTLE <= inputTHROTTLEprev - 200){
+        inputTHROTTLE = inputTHROTTLEprev - 200;
       }
       chrono_start3 = 0;
     }
@@ -119,11 +119,11 @@ void calcSignalYAW() {
     if (chrono_start4 != 0) {
       inputYAWprev = inputYAW;
       inputYAW = ((volatile int)micros() - chrono_start4);
-      if (inputYAW >= inputYAWprev + 300){
-        inputYAW = inputYAWprev + 300;
+      if (inputYAW >= inputYAWprev + 200){
+        inputYAW = inputYAWprev + 200;
       }
-      if (inputYAW <= inputYAWprev - 300){
-        inputYAW = inputYAWprev - 300;
+      if (inputYAW <= inputYAWprev - 200){
+        inputYAW = inputYAWprev - 200;
       }
       chrono_start4 = 0;
     }
@@ -136,13 +136,13 @@ void calcSignalYAW() {
 void pid_compute() {
   unsigned long maintenant = millis();
   int deltaTemps = (maintenant - dernierTemps);
-  //if(deltaTemps >= dt){
+  if(deltaTemps >= dt){
 
     //ROLL calculations
     //definition du setpoint
     pid_roll_setpoint = 0;
-    if (inputROLL > THROTTLE_RMID + 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID + 10)/3.0;
-    else if (inputROLL < THROTTLE_RMID - 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID - 10)/3.0;
+    if (inputROLL > THROTTLE_RMID + 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID + 10)/2.0;
+    else if (inputROLL < THROTTLE_RMID - 10)pid_roll_setpoint = (inputROLL - THROTTLE_RMID - 10)/2.0;
 
     roll_error = roll_speed - pid_roll_setpoint;
 
@@ -162,8 +162,8 @@ void pid_compute() {
     //PITCH calculations
     //definition du setpoint
     pid_pitch_setpoint = 0;
-    if (inputPITCH > THROTTLE_RMID + 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID + 10)/3.0;
-    else if (inputPITCH< THROTTLE_RMID - 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID - 10)/3.0;
+    if (inputPITCH > THROTTLE_RMID + 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID + 10)/2.0;
+    else if (inputPITCH< THROTTLE_RMID - 10)pid_pitch_setpoint = (inputPITCH - THROTTLE_RMID - 10)/2.0;
 
     pitch_error = pitch_speed - pid_pitch_setpoint;
 
@@ -182,8 +182,8 @@ void pid_compute() {
     //YAW calculations
     //On calcule le setpoint du yaw ici car il est le meme en stabilise ou en acro
     pid_yaw_setpoint = 0;
-    if (inputYAW > THROTTLE_RMID + 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID + 10) / 3.0;
-    else if (inputYAW < THROTTLE_RMID - 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID - 10) / 3.0;
+    if (inputYAW > THROTTLE_RMID + 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID + 10) / 2.0;
+    else if (inputYAW < THROTTLE_RMID - 10)pid_yaw_setpoint = (inputYAW - THROTTLE_RMID - 10) / 2.0;
 
     yaw_error = yaw_speed - pid_yaw_setpoint;
 
@@ -199,8 +199,9 @@ void pid_compute() {
 
     last_yaw_error = yaw_error;
 
-    //dernierTemps = maintenant;
-  //}
+    dernierTemps = maintenant;
+    //Serial.println(deltaTemps);
+  }
 
 }
 void pid_LEVEL_compute() {
@@ -269,6 +270,8 @@ void pid_LEVEL_compute() {
   else if (pid_yaw_out < YAW_PID_MIN)pid_yaw_out = YAW_PID_MIN;
 
   last_yaw_error = yaw_error;
+
+  maintenant = dernierTemps;
 }
 
 // Fonction qui empeche les moteurs de tourner
@@ -418,10 +421,10 @@ void loop() {
   //ARM switch
   if (inputARM > 1500) {
     if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX; //Afin de laisser un peu de controlle meme en full throttle ca fait 1850
-    motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out;
-    motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out;
-    motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out;
-    motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out;
+    motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out;
+    motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out;
+    motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out;
+    motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out;
 
     if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
     if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL; //on ne veut pas ecrire aux esc une valeur
@@ -452,6 +455,6 @@ void loop() {
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
 
-  print_rx();
-  delay(20);
+  //Serial.println(maintenant);
+  //delay(20);
 }
