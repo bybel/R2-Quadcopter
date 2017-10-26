@@ -8,7 +8,7 @@
 
 // Mise en place des variables
 Servo esc_1; //FRONT RIGHT (Moteur avant droit)
-Servo esc_2; //BACK LEFT (Moteur arrière gauche)e
+Servo esc_2; //BACK LEFT (Moteur arrière gauche)
 Servo esc_3; //FRONT LEFT (Moteur avant gauche)
 Servo esc_4; //BACK RIGHT (Moteur arrière droit)
 
@@ -448,7 +448,7 @@ void loop() {
     esc_2.writeMicroseconds(motorFL);
     esc_3.writeMicroseconds(motorBL);
     esc_4.writeMicroseconds(motorBR);
-    
+
     Proportional_roll, Integral_roll, Derivative_roll = 0;
     Proportional_pitch, Integral_pitch, Derivative_pitch = 0; //reset après disarm
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
