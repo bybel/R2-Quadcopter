@@ -39,7 +39,7 @@ const float pi = 3.14159265359;
 Adafruit_BNO055 bno = Adafruit_BNO055(); // Initialisation de l'objet BNO
 
 ////////////////////////////////////////////////////////////////////////
-//INTERRUPTS
+//LECTURE RADIO AVEC INTERRUPTS
 ////////////////////////////////////////////////////////////////////////
 void calcSignalARM() {
   if (digitalRead(RX_PIN_ARM) == HIGH) {
@@ -200,7 +200,6 @@ void pid_compute() {
     last_yaw_error = yaw_error;
 
     dernierTemps = maintenant;
-    //Serial.println(deltaTemps);
   }
 
 }
@@ -414,7 +413,6 @@ void loop() {
   if (auto_stabilisation_mode == false)pid_compute();
   else pid_LEVEL_compute();
 
-
   //MOTORS
   throttle = inputTHROTTLE;
 
@@ -450,11 +448,9 @@ void loop() {
     esc_2.writeMicroseconds(motorFL);
     esc_3.writeMicroseconds(motorBL);
     esc_4.writeMicroseconds(motorBR);
+    
     Proportional_roll, Integral_roll, Derivative_roll = 0;
-    Proportional_pitch, Integral_pitch, Derivative_pitch = 0; //reset after disarm
+    Proportional_pitch, Integral_pitch, Derivative_pitch = 0; //reset après disarm
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
-
-  //Serial.println(maintenant);
-  //delay(20);
 }
