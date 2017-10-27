@@ -13,7 +13,7 @@ Servo esc_3; //FRONT LEFT (Moteur avant gauche)
 Servo esc_4; //BACK RIGHT (Moteur arrière droit)
 
 // PID
-byte dt = 20; // C'est le temps que doit attendre le PID avant de calculer
+byte dt = 25; // C'est le temps que doit attendre le PID avant de calculer
 unsigned long dernierTemps; // Est utile aussi pour le dt du PID
 unsigned long maintenant, deltaTemps;
 bool auto_stabilisation_mode = false; // Activer ou pas le mode auto-stabilisé
@@ -419,10 +419,10 @@ void loop() {
   //ARM switch
   if (inputARM > 1500) {
     if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX; //Afin de laisser un peu de controlle meme en full throttle ca fait 1850
-    motorFR = throttle + pid_pitch_out + pid_roll_out - pid_yaw_out; //1
-    motorBL = throttle - pid_pitch_out - pid_roll_out - pid_yaw_out; //2
-    motorFL = throttle + pid_pitch_out - pid_roll_out + pid_yaw_out; //3
-    motorBR = throttle - pid_pitch_out + pid_roll_out + pid_yaw_out; //4
+    motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out; //1
+    motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out; //2
+    motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out; //3
+    motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out; //4
 
     if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
     if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL; //on ne veut pas ecrire aux esc une valeur
