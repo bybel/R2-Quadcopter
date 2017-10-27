@@ -419,10 +419,10 @@ void loop() {
   //ARM switch
   if (inputARM > 1500) {
     if(throttle > THROTTLE_WMAX)throttle = THROTTLE_WMAX; //Afin de laisser un peu de controlle meme en full throttle ca fait 1850
-    motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out;
-    motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out;
-    motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out;
-    motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out;
+    motorFR = throttle - pid_pitch_out + pid_roll_out - pid_yaw_out; //1
+    motorBL = throttle + pid_pitch_out - pid_roll_out - pid_yaw_out; //2
+    motorFL = throttle - pid_pitch_out - pid_roll_out + pid_yaw_out; //3
+    motorBR = throttle + pid_pitch_out + pid_roll_out + pid_yaw_out; //4
 
     if (motorFR > MOTOR_MAX_LEVEL) motorFR = MOTOR_MAX_LEVEL;
     if (motorFL > MOTOR_MAX_LEVEL) motorFL = MOTOR_MAX_LEVEL; //on ne veut pas ecrire aux esc une valeur
