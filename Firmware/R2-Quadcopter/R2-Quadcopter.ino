@@ -374,8 +374,8 @@ void setup() {
 
   //Motors init
   esc_1.attach(MOTOR_PIN_FRONT_RIGHT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
-  esc_2.attach(MOTOR_PIN_FRONT_LEFT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
-  esc_3.attach(MOTOR_PIN_BACK_LEFT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  esc_2.attach(MOTOR_PIN_BACK_LEFT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
+  esc_3.attach(MOTOR_PIN_FRONT_LEFT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
   esc_4.attach(MOTOR_PIN_BACK_RIGHT, MOTOR_ZERO_LEVEL, MOTOR_MAX_LEVEL);
 
   esc_1.writeMicroseconds(MOTOR_ZERO_LEVEL);
@@ -445,12 +445,13 @@ void loop() {
     motorBL = 1000;
     motorBR = 1000;
     esc_1.writeMicroseconds(motorFR);
-    esc_2.writeMicroseconds(motorFL);
-    esc_3.writeMicroseconds(motorBL);
+    esc_2.writeMicroseconds(motorBL);
+    esc_3.writeMicroseconds(motorFL);
     esc_4.writeMicroseconds(motorBR);
 
     Proportional_roll, Integral_roll, Derivative_roll = 0;
     Proportional_pitch, Integral_pitch, Derivative_pitch = 0; //reset après disarm
     Proportional_yaw, Integral_yaw, Derivative_yaw = 0;
   }
+  print_imu_speed();
 }
